@@ -1,0 +1,18 @@
+{
+  "name": "nuco2",
+  "owner": {
+    "name": "lem4242",
+    "email": "lynton@d3r.com"
+  },
+  "metadata": {
+    "description": "A small marketplace with a Hello World example plugin."
+  },
+  "plugins": [
+    {
+      "name": "hello-world",
+      "source": "./plugins/hello-world",
+      "description": "A minimal example plugin: one skill, one slash command, and a bundled MCP server.",
+      "version": "0.1.0"
+    }
+  ]
+}
