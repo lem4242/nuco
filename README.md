@@ -2,13 +2,13 @@
 
 A tiny [Claude Code plugin](https://code.claude.com/docs/en/plugins) example you
 can install into your own Claude. It contains one marketplace with one plugin,
-`hello-world`, which demonstrates the three most common plugin components:
+`hello-world`, which demonstrates three common plugin components:
 
 | Component   | What it is                              | Where it lives                                          |
 | ----------- | --------------------------------------- | ------------------------------------------------------- |
 | Skill       | Model-invokable instructions            | `plugins/hello-world/skills/hello-world/SKILL.md`       |
 | Command     | A `/hello` slash command                | `plugins/hello-world/commands/hello.md`                 |
-| MCP server  | A `say_hello` tool over stdio           | `plugins/hello-world/mcp-server/index.js` + `.mcp.json` |
+| MCP server  | A remote MCP endpoint (HTTP + OAuth)    | `plugins/hello-world/.mcp.json`                         |
 
 ## Repository layout
 
@@ -20,20 +20,39 @@ can install into your own Claude. It contains one marketplace with one plugin,
 │   └── hello-world/
 │       ├── .claude-plugin/
 │       │   └── plugin.json        # Plugin manifest
-│       ├── .mcp.json              # Declares the bundled MCP server
+│       ├── .mcp.json              # Points at the remote MCP endpoint
 │       ├── commands/
 │       │   └── hello.md           # /hello slash command
-│       ├── skills/
-│       │   └── hello-world/
-│       │       └── SKILL.md        # Example skill
-│       └── mcp-server/
-│           └── index.js           # Dependency-free MCP stdio server
+│       └── skills/
+│           └── hello-world/
+│               └── SKILL.md        # Example skill
 └── README.md
 ```
 
-## Install it into Claude
+## The MCP endpoint
 
-> Requires Node.js on your PATH (the MCP server runs with `node`).
+This plugin registers an **external (remote) MCP server** — there's no local
+process to run. The connection is declared in
+`plugins/hello-world/.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "hello-world": {
+      "type": "http",
+      "url": "https://example.com/mcp"
+    }
+  }
+}
+```
+
+- `type: "http"` is the streamable-HTTP remote transport.
+- Replace the placeholder `url` with your real endpoint.
+- **OAuth:** if the endpoint requires OAuth, you don't put any secret in this
+  file. The first time Claude connects, it runs the OAuth flow in your browser
+  and stores the token securely. So the config above is all you need.
+
+## Install it into Claude
 
 In Claude Code, add this repo as a marketplace and install the plugin:
 
@@ -61,29 +80,12 @@ You can point Claude at a local checkout instead of GitHub:
 
 - **Slash command:** type `/hello` (or `/hello Ada`) to get a greeting.
 - **Skill:** ask Claude something like "use the hello-world skill to greet me".
-- **MCP tool:** ask Claude to "call the say_hello tool", or use it directly —
-  it accepts an optional `name` argument.
-
-## Test the MCP server by hand
-
-The server speaks newline-delimited JSON-RPC over stdio. You can drive it
-manually to confirm it works:
-
-```bash
-printf '%s\n' \
-  '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
-  '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
-  '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"say_hello","arguments":{"name":"Ada"}}}' \
-  | node plugins/hello-world/mcp-server/index.js
-```
-
-You should see three JSON responses, the last containing
-`Hello, Ada! 👋`.
+- **MCP tools:** once the endpoint is reachable (and authorized), its tools
+  appear automatically — check them with `/mcp`.
 
 ## Make it your own
 
 1. Rename the plugin in `plugins/hello-world/.claude-plugin/plugin.json` and the
    marketplace entry in `.claude-plugin/marketplace.json`.
 2. Edit `SKILL.md` to give your skill a real job.
-3. Add tools to `mcp-server/index.js` (extend the `TOOLS` array and the
-   `say_hello` branch in `handleToolCall`).
+3. Set the real endpoint `url` in `plugins/hello-world/.mcp.json`.
