@@ -11,8 +11,8 @@
     {
       "name": "hello-world",
       "source": "./plugins/hello-world",
-      "description": "A minimal example plugin: one skill, one slash command, and a bundled MCP server.",
-      "version": "0.1.0"
+      "description": "A minimal example plugin: one skill, one slash command, and a remote MCP endpoint.",
+      "version": "0.2.0"
     }
   ]
 }
