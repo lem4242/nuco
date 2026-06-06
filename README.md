@@ -54,18 +54,50 @@ process to run. The connection is declared in
 
 ## Install it into Claude
 
-In Claude Code, add this repo as a marketplace and install the plugin:
+There are two audiences: a whole **organization** (recommended for sharing), and
+**individuals** in Claude Code.
+
+### A. For an organization (Claude app / Cowork) — one admin, no per-user GitHub auth
+
+This is the simplest way to share with a team: an admin connects the repo once,
+and every member can then install it **without any GitHub credentials of their
+own**. Anthropic syncs the private repo server-side using its GitHub App token.
+
+Requirements:
+
+- A **Team or Enterprise** plan (org-level plugin distribution).
+- The repo must be **private or internal** (public repos are not allowed for org
+  marketplaces) and hosted on **github.com**.
+- Plugins must use **relative-path sources** like `./plugins/hello-world` — this
+  repo already does, so no change needed.
+
+Steps (admin, once):
+
+1. **Organization settings → Plugins**
+2. **Add plugin → GitHub**, then enter the repo as `lem4242/nuco2`.
+   - Your personal GitHub token is checked once to confirm *you* have access; after
+     that, Cowork syncs with its own GitHub App token.
+3. An initial sync runs automatically. Optionally open the marketplace's **⋯ menu
+   → "Sync automatically"** to keep it updated.
+
+Members then open **Customize → Plugins**, browse the catalog, and click
+**Install** on *hello-world* — no GitHub login required.
+
+### B. For individuals in Claude Code
+
+Add this repo as a marketplace and install the plugin:
 
 ```
 /plugin marketplace add lem4242/nuco2
 /plugin install hello-world@nuco2
 ```
 
-Or browse interactively with:
+Or browse interactively with `/plugin`.
 
-```
-/plugin
-```
+> **Private-repo note:** unlike the org/app path above, Claude Code clones the
+> repo **locally on each machine**, so each user needs their own git read access
+> to the private repo (SSH key, `gh auth login`, or a `GITHUB_TOKEN`). There is no
+> central server-side fetch for Claude Code today.
 
 ### Try it locally before pushing
 
