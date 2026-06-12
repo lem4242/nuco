@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "hello-world": {
-      "type": "http",
-      "url": "https://example.com/mcp"
+      "type": "https",
+      "url": "https://ob.vivelia.co/mcp-connect/ms1p5nfk"
     }
   }
 }
