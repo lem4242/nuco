@@ -3,7 +3,7 @@ name: hello-world
 description: A friendly hello-world example skill. Use when the user wants a demonstration of how a Claude plugin skill works, or asks the plugin to greet someone.
 ---
 
-# Hello World Skill (v0.2.0) 🎉
+# Hello World Skill (v0.3.0) 🎉
 
 This is a minimal example skill bundled with the `hello-world` plugin. Its job
 is to demonstrate how a skill is structured, invoked, and **updated**.
