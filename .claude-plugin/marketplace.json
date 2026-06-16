@@ -10,7 +10,8 @@
   "plugins": [
     {
       "name": "nuco",
-      "displayName": "Nuco",
+      "displayName": "nuco",
+      "author": { "name": "lynton", "email": "lynton@d3r.com" },
       "source": "./plugins/nuco",
       "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB, via an Obot composite.",
       "version": "0.1.0",

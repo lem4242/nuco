@@ -1,6 +1,10 @@
 {
   "name": "nuco",
-  "displayName": "Nuco",
+  "displayName": "nuco",
   "version": "0.1.0",
+  "author": {
+    "name": "lynton",
+    "email": "lynton@d3r.com"
+  },
   "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB, reached through an Obot composite. One Obot composite, per-user connect URL resolved by Obot."
 }
