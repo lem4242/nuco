@@ -1,0 +1,6 @@
+{
+  "name": "nuco",
+  "displayName": "Nuco",
+  "version": "0.1.0",
+  "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB, reached through an Obot composite. One Obot composite, per-user connect URL resolved by Obot."
+}

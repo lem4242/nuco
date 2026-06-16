@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "hello-world": {
-      "type": "https",
-      "url": "https://ob.vivelia.co/mcp-connect/ms1p5nfk"
-    }
-  }
-}

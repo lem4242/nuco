@@ -5,14 +5,16 @@
     "email": "lynton@d3r.com"
   },
   "metadata": {
-    "description": "A small marketplace with a Hello World example plugin."
+    "description": "nuco2 — the shared, queryable store substrate (documents + relational tables) on ParadeDB, reached through an Obot composite."
   },
   "plugins": [
     {
-      "name": "hello-world",
-      "source": "./plugins/hello-world",
-      "description": "A minimal example plugin: one skill, one slash command, and a remote MCP endpoint.",
-      "version": "0.2.0"
+      "name": "nuco",
+      "displayName": "Nuco",
+      "source": "./plugins/nuco",
+      "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB, via an Obot composite.",
+      "version": "0.1.0",
+      "keywords": ["nuco", "nuco2", "paradedb", "shared-store", "mcp"]
     }
   ]
 }
