@@ -31,10 +31,22 @@ use the **lowest-permission** tool that does the job.
   never `UPDATE` in place. Set `author` from the current user and `project` from context.
 
 ## Searching (BM25 — this is ParadeDB, not vanilla Postgres)
-- Use `pg_search` BM25 with the `@@@` operator over `title` / `body` / `summary`, ordered by
-  `paradedb.score(...)`. Do **not** use `LIKE` / `ILIKE` for recall.
-- Query `doc_current` (latest versions) unless you specifically need history. Weight `document`
-  above `memory`.
+- Use `pg_search` BM25 with the `@@@` operator, **never** `LIKE`/`ILIKE`. Run `@@@` against the
+  base `doc` table and **join `doc_current`** to keep only latest versions — `paradedb.score()`
+  must reference the base table alias:
+  ```sql
+  select dc.title, dc.kind,
+         paradedb.score(d.id) + case when dc.kind = 'document' then 0.4 else 0 end as rank
+  from doc d
+  join doc_current dc on dc.id = d.id
+  where d.body @@@ 'terms' or d.title @@@ 'terms'
+  order by rank desc;
+  ```
+- The `+0.4` is a **tie-breaker** nudging documents above comparably-relevant memories — it won't
+  (and shouldn't) bury a much-more-relevant memory. Do **not** hard-tier on `kind`.
+- The index stems **inflections** (payment/payments, flag/flagged/flagging), but NOT derivational
+  variants (reconcile↔reconciliation) or compounds (rollback↔"roll back"). For those, **expand the
+  query** with the variants (e.g. `'reconcile reconciliation'`) or use fuzzy match.
 - Semantic / vector search is **not enabled yet** — BM25 only.
 
 ## Tables (the quantitative citizen)
