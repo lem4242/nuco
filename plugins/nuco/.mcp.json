@@ -6,7 +6,7 @@
     },
     "nuco-admin": {
       "type": "https",
-      "url": "https://ob.vivelia.co/mcp-connect/default-nuco2-9ef85db82tmzh"
+      "url": "https://nuco-admin.vivelia.co/mcp"
     }
   }
 }
