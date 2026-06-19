@@ -2,6 +2,10 @@
   "mcpServers": {
     "nuco": {
       "type": "https",
+      "url": "https://nuco.vivelia.co/mcp"
+    },
+    "nuco-admin": {
+      "type": "https",
       "url": "https://ob.vivelia.co/mcp-connect/default-nuco2-9ef85db82tmzh"
     }
   }
