@@ -1,7 +1,7 @@
 # nuco2 — Claude plugin marketplace
 
 The marketplace for **nuco** — a shared, queryable store (documents + relational tables) on
-ParadeDB, reached through an Obot composite. *Git for shared data and documents*, not a personal
+ParadeDB, served by a self-hosted MCP server. *Git for shared data and documents*, not a personal
 notebook.
 
 > Design rationale, decisions, schema, and phase plans live in a **separate** background repo —
@@ -11,7 +11,7 @@ notebook.
 
 | Plugin | What it is | Where |
 | --- | --- | --- |
-| `nuco` | The store: the `nuco` operating skill + the Obot composite MCP connector | `plugins/nuco/` |
+| `nuco` | The store: the `nuco` operating skill + the self-hosted MCP connector | `plugins/nuco/` |
 
 ```
 .
@@ -21,7 +21,7 @@ notebook.
 │   └── nuco/
 │       ├── .claude-plugin/
 │       │   └── plugin.json           # Plugin manifest
-│       ├── .mcp.json                 # Obot composite connect URL (per-user OAuth)
+│       ├── .mcp.json                 # Self-hosted MCP server URLs (per-user OAuth)
 │       └── skills/
 │           └── nuco/
 │               └── SKILL.md          # The store operating skill (/nuco)
@@ -30,10 +30,10 @@ notebook.
 
 ## The MCP endpoint
 
-`plugins/nuco/.mcp.json` registers the Obot composite as a remote MCP server — no local process.
-The connect URL is not a secret: Obot resolves per-user identity via OAuth on first connect, so
-the config is all you need. (If the endpoint requires OAuth, Claude runs the flow in your browser
-and stores the token securely.)
+`plugins/nuco/.mcp.json` registers two self-hosted MCP servers — `nuco` (data plane) and
+`nuco-admin` (control plane) — as remote MCP servers, no local process. The URLs are not secrets:
+the server resolves per-user identity via WorkOS AuthKit OAuth on first connect, so the config is
+all you need. Claude runs the OAuth flow in your browser and stores the token securely.
 
 ## Install
 

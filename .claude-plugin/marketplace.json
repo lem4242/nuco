@@ -5,7 +5,7 @@
     "email": "lynton@d3r.com"
   },
   "metadata": {
-    "description": "nuco2 — the shared, queryable store substrate (documents + relational tables) on ParadeDB, reached through an Obot composite."
+    "description": "nuco2 — the shared, queryable store substrate (documents + relational tables) on ParadeDB."
   },
   "plugins": [
     {
@@ -13,8 +13,8 @@
       "displayName": "nuco",
       "author": { "name": "lynton", "email": "lynton@d3r.com" },
       "source": "./plugins/nuco",
-      "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB, via an Obot composite.",
-      "version": "0.1.0",
+      "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB.",
+      "version": "0.2.0",
       "keywords": ["nuco", "nuco2", "paradedb", "shared-store", "mcp"]
     }
   ]
