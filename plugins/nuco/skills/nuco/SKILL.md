@@ -19,18 +19,26 @@ a later job. Keep everything else in the client.
 The user points ("remember this", "note that", "write that up"); you compose the document and
 you choose its state. The user never writes store text and never picks a category.
 
-Pick the state by where the idea is, not what it's about:
+Pick the state by where the idea is, not what it's about — one universal axis:
 
-- **memory** — a snapshot you're capturing unilaterally. The default. Short summary + the material.
-- **draft** — something you presented that wasn't agreed yet. Save it anyway.
-- **doc** — a write-up that got the user's agreement. Promote to this only on real agreement.
-- **archived** — retired/superseded.
+- **saved** — captured, not yet in force. The default. A working note, a proposal, a snapshot you're
+  recording unilaterally — anything you're keeping but not yet asking anyone to rely on.
+- **active** — current and relied-on. Promote to this when the thing is in force: a write-up the user
+  agreed to, a decision that now holds, a durable fact to rely on. **`state = active` means "rely on this".**
+- **archived** — retired or superseded.
+
+`summary` doubles as the document's subtitle — write it as a short one-line description, not a
+restatement of the title.
+
+(There's also a `type` axis — genre, default `note`, with `memory` for durable facts — but `doc_write`
+can't set it yet, so don't try to: every new capture lands as `type=note`. It's populated only on the
+migrated legacy memories for now.)
 
 One idea = one `doc_key`, advanced by version. A capture that moves the same idea forward is the
 next version of that `doc_key` (pass the existing key), not a new document. The natural arc
-**memory → draft(s) → agreed doc** is the version history of one key.
+**saved → … → active** is the version history of one key.
 
-Keep the negative space. When a draft is rejected, don't delete it — save the next version and
+Keep the negative space. When a proposal is rejected, don't delete it — save the next version and
 write down why it was rejected (the feedback that killed it) in the new body/summary. The
 "why-not" is often worth more later than the thing that won. Append-only means the trail survives;
 use it.
@@ -68,9 +76,12 @@ prose. You're the DBA: inspect with `db_describe`, `dry_run` before big changes,
   table bigger than that, aggregate or paginate in SQL rather than expecting every row.
 - Search stems inflections (flag↔flagged) but not derivational (reconcile↔reconciliation) or
   compound (rollback↔"roll back") variants — expand the query with the variants yourself.
-- Search ranks by relevance and state: `doc`/`memory` are boosted, `archived` is demoted (still
-  findable), `draft` is neutral. So a `draft` or `archived` hit can still surface — check the
-  `state` column: a draft hit isn't agreement, an archived hit isn't current.
+- Search ranks by relevance and state: `active` is boosted, `archived` is demoted (still findable),
+  `saved` is neutral. A `saved` or `archived` hit can still surface — check the `state` column: a
+  `saved` hit isn't yet in force, an `archived` hit isn't current.
+- For a relied-on answer, search **`state:"active"` first**, then broaden (drop the filter) only if
+  nothing lands. `doc_search` with no filter returns every state, so don't treat an unfiltered hit as
+  authoritative without checking its `state`.
 
 ## Discipline
 
