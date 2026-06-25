@@ -30,9 +30,11 @@ Pick the state by where the idea is, not what it's about — one universal axis:
 `summary` doubles as the document's subtitle — write it as a short one-line description, not a
 restatement of the title.
 
-(There's also a `type` axis — genre, default `note`, with `memory` for durable facts — but `doc_write`
-can't set it yet, so don't try to: every new capture lands as `type=note`. It's populated only on the
-migrated legacy memories for now.)
+**Classify every save with a `type`** — a short free-text genre (lower-cased, >= 3 chars) for *what
+kind of doc this is*, orthogonal to state. Pick `note` when nothing more specific fits; `memory` for a
+durable fact to recall, `decision` for a choice that holds, `spec`/`brief`/etc. as they emerge. It's
+**required** — `doc_write` rejects a save without one — and you can narrow recall by it
+(`doc_search type:"decision"`).
 
 One idea = one `doc_key`, advanced by version. A capture that moves the same idea forward is the
 next version of that `doc_key` (pass the existing key), not a new document. The natural arc

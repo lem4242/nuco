@@ -26,7 +26,8 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
 ## The surface the skill drives (canonical: `nuco2-project/docs/SURFACE.md`)
 - **Orient first:** `nuco_context` — identity, the projects you can read/write, and their tables/keys.
 - **Documents:** `doc_search` · `doc_read` · `doc_history` · `doc_write` (states:
-  saved | active | archived; orthogonal `type` axis, default `note`; a save appends a version, never overwrites).
+  saved | active | archived; a **required** free-text `type` axis — classify every save, e.g. note | memory |
+  decision; a save appends a version, never overwrites).
 - **Tables:** `db_describe` · `db_read` · `db_upsert` · `db_update` · `db_delete` · `db_write` ·
   `db_alter` (`dry_run` is an arg on the destructive ones, not a separate verb).
 - **Admin** runs on the separate `nuco-admin` instance with its own provisioning verbs — not the
