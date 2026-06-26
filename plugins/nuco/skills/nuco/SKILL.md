@@ -57,6 +57,32 @@ documents rather than one sprawling one.
 - **Stale data:** don't say "I don't have it" — say when it was last updated and offer to work with it
   or refresh ("sales last updated Tue 11pm — refresh, or use what we've got?").
 
+## Rendering — the navigable status screens
+
+nuco is navigable like a filesystem: an ambient **cursor** sits at one of three levels —
+**root** (no project), **project**, or **file** (a document or table). "Show me nuco" /
+"ls" / `/nuco` renders the current level's **status screen** as a styled inline widget;
+naming a project or doc moves the cursor (`cd`) and renders the next level.
+
+- **root** → project grid (`nuco_context`) · **project** → header + document tiles +
+  tables + people + connectors (`doc_search` + table list) · **file** → document view
+  (`doc_read`) or table view (`db_read` + `db_describe`).
+- The canonical markup is in `skills/nuco/assets/` — one file per screen (see its
+  `README.md`). To render: copy the template, inject the live values into the `{{TOKENS}}`,
+  strip the comment header, and emit it with the visualize `show_widget` tool — the only way
+  to show styled HTML inline. **One screen = one widget. Static: no timers, no
+  auto-refresh.** A document body reads better as markdown in your reply than inside the
+  widget.
+- **Navigation is conversational:** a tile click fires `sendPrompt('nuco: open …')`, which
+  re-renders the next level. Carry the breadcrumb in the heartbeat (`| n – nuco_dev /
+  nuco-as-os`).
+- **Degrade gracefully.** Some fields aren't returned yet (project name/description,
+  doc/connector/member counts, doc version + updated time, the members list). Fall back —
+  key as name, hide absent counts/version/time, mark People/Connectors pending. Never emit a
+  literal `{{TOKEN}}`. The fields to add server-side are listed in `assets/PLATFORM-GAPS.md`.
+- Keep it lean: a shared `<style>` block + values injected into terse markup is the
+  lowest-token styled render; reach for a `<script>` only for the table builder.
+
 ## Routing — private by default, shared on purpose
 
 - Omitting `project` keeps a write in your personal project (private). That's the safe default.
@@ -91,5 +117,7 @@ prose. You're the DBA: inspect with `db_describe`, `dry_run` before big changes,
 - Don't hoard — capture on explicit intent + the engaged toggle, not every sentence.
 - If a write is denied, narrate it and offer the read path — never pretend it worked.
 
-When engaged, append a status line as the last line of every reply, exactly: `— nuco`. It's a smoke
-alarm — if it stops appearing, the client likely dropped the skill, so re-engage.
+When engaged, end **every reply** with a one-line heartbeat: an em dash, then the cursor as a
+`>`-separated breadcrumb — `— nuco` at root, `— nuco > loaf` inside a project, `— nuco > loaf > orders`
+at a file. It's both the live indicator of where the cursor sits and a smoke alarm: if it stops
+appearing, the client likely dropped the skill, so re-engage.
