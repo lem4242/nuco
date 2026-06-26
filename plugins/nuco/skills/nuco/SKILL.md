@@ -59,29 +59,64 @@ documents rather than one sprawling one.
 
 ## Rendering — the navigable status screens
 
-nuco is navigable like a filesystem: an ambient **cursor** sits at one of three levels —
-**root** (no project), **project**, or **file** (a document or table). "Show me nuco" /
-"ls" / `/nuco` renders the current level's **status screen** as a styled inline widget;
-naming a project or doc moves the cursor (`cd`) and renders the next level.
+nuco is a shell. An ambient **cursor** persists between messages at one of three levels —
+**root** (no project), **project**, or **file** (a document or table). `/nuco` (or "ls" /
+"show me") renders **the current level** — "show me where I am"; naming a child is `cd`, a
+back-link is `cd ..`. **Always render in markdown — never a widget.** The heartbeat carries
+the path-of-**keys** (addressable); screen headings use the readable **names**.
 
-- **root** → project grid (`nuco_context`) · **project** → header + document tiles +
-  tables + people + connectors (`doc_search` + table list) · **file** → document view
-  (`doc_read`) or table view (`db_read` + `db_describe`).
-- The canonical markup is in `skills/nuco/assets/` — one file per screen (see its
-  `README.md`). To render: copy the template, inject the live values into the `{{TOKENS}}`,
-  strip the comment header, and emit it with the visualize `show_widget` tool — the only way
-  to show styled HTML inline. **One screen = one widget. Static: no timers, no
-  auto-refresh.** A document body reads better as markdown in your reply than inside the
-  widget.
-- **Navigation is conversational:** a tile click fires `sendPrompt('nuco: open …')`, which
-  re-renders the next level. Carry the breadcrumb in the heartbeat (`| n – nuco_dev /
-  nuco-as-os`).
-- **Degrade gracefully.** Some fields aren't returned yet (project name/description,
-  doc/connector/member counts, doc version + updated time, the members list). Fall back —
-  key as name, hide absent counts/version/time, mark People/Connectors pending. Never emit a
-  literal `{{TOKEN}}`. The fields to add server-side are listed in `assets/PLATFORM-GAPS.md`.
-- Keep it lean: a shared `<style>` block + values injected into terse markup is the
-  lowest-token styled render; reach for a `<script>` only for the table builder.
+**Glyphs — monochrome unicode only** (no colour emoji; the only HTML is `<br>`; colour, size and vertical-align are the client's, not ours):
+
+- **column-header glyphs:** `☲` docs · `⛁` tables · `◷` updated · `⤓` size · `✎` access · `⚑` state
+- **access cells:** `⌂` home · `rw` write · `r` read-only
+- **state cells:** `✓` active · `○` saved · `✗` archived · `→` superseded — glyph only, no word
+- **relative time** (the `◷` column): abbreviated — `2 mins` · `3 hrs` · `4 days` · `2 wks` · `5 mos`
+
+**root → projects** — `nuco_context`, one row per project (mobile-narrow):
+
+| Project | ☲ | ⛁ | ◷ | ✎ |
+|:---|:---:|:---:|:---:|:---:|
+
+The `Project` cell stacks (via `<br>`): **bold Name**, a one-line description, then the **member
+names as a plain comma list** (no label). Columns: `☲` docs · `⛁` tables (= `table_count`) · `◷`
+relative updated · `✎` access cell = `⌂` home / `rw` write / `r` read (from personal / `can_write`).
+Only `tables` is live in `nuco_context` today; description / members / docs / updated → placeholder
+(`—`) until the calls return them.
+
+**project → detail** — `cd <project>`: a `## <name>` heading (+ a description line if present),
+then these sections, each **omitted when empty**:
+
+- **Documents (n)** — `doc_search` that project → `| Document | Type | ◷ | ⚑ |`. The `Document`
+  cell stacks **bold Title** + ` vX` then a one-line subtitle (the `summary`, truncated) via
+  `<br>`; `◷` = relative updated; `⚑` (state) cell = **glyph only** (`✓`/`○`/`✗`/`→`), no word.
+  `vX` is a placeholder until the API returns version.
+- **Tables (n)** — `db_describe` → `| Table | Rows |`. **Always hide the `doc` and `nuco_audit`
+  tables** (the documents store + audit log — system tables surfaced elsewhere); list only the
+  project's own data tables. Table names are **plain, not bold**.
+- **Assets (n)** — `file_list` → `| Asset | ⤓ | ◷ |` (`⤓` heads the size column; no type column —
+  the filename extension carries it). The `Asset` name is a **markdown link to its `webViewLink`**
+  (opens the Drive file), **plain, not bold**. Size is compact `Kb`/`Mb` — `2.4Mb` · `12Kb` ·
+  `340b`, no space (quiet metadata, not `2.4 MB`). Empty → _No assets yet_.
+- **People** · **Connectors** — `— pending` until the API returns them. Members count for the
+  header comes from `project_members` (one call, this project).
+
+**file → document or table** — `cd <doc|table>`:
+
+- **document** (`doc_read`) — a `## <Title>` heading, a meta line
+  `<type> · vX · <state glyph> · ◷ <relative>`, then the **body rendered as markdown** in the reply.
+- **table** (`db_read` + `db_describe`) — a markdown table following the header rule (numbers
+  centred in markdown, right-aligned only in an HTML render); `date` absolute, `since` relative
+  (mins/hr/day…); `status` = the plain state word; rich cells (tags / user / progress) **fall
+  back to raw text**. Cap 500 rows; show the count and whether it `truncated`.
+
+**Always:** header row = first column left, **every other column centred** (`:---:`), headers
+included. Right-alignment is reserved for **number columns only** and never used on text — but
+markdown ties a column's header and body to one setting, so a number column is **centred in
+markdown** (centred headers win); the right-align applies only in a render that can align header
+and body independently (HTML/widget). **Capitalise the first letter of every title** (column headers, row titles, headings). Keep
+columns few, degrade genuinely-empty values to `—`; for fields the API doesn't return yet, show
+an interface **placeholder** (`vX`, `_description_`, `Updated —`) rather than nothing. End the
+screen with the heartbeat breadcrumb.
 
 ## Routing — private by default, shared on purpose
 
@@ -118,6 +153,6 @@ prose. You're the DBA: inspect with `db_describe`, `dry_run` before big changes,
 - If a write is denied, narrate it and offer the read path — never pretend it worked.
 
 When engaged, end **every reply** with a one-line heartbeat: an em dash, then the cursor as a
-`>`-separated breadcrumb — `— nuco` at root, `— nuco > loaf` inside a project, `— nuco > loaf > orders`
+`·`-separated breadcrumb — `— nuco` at root, `— nuco · loaf` inside a project, `— nuco · loaf · orders`
 at a file. It's both the live indicator of where the cursor sits and a smoke alarm: if it stops
 appearing, the client likely dropped the skill, so re-engage.
