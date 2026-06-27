@@ -62,12 +62,14 @@ documents rather than one sprawling one.
 nuco is a shell. An ambient **cursor** persists between messages at one of three levels —
 **root** (no project), **project**, or **file** (a document or table). `/nuco` (or "ls" /
 "show me") renders **the current level** — "show me where I am"; naming a child is `cd`, a
-back-link is `cd ..`. **Always render in markdown — never a widget.** The heartbeat carries
-the path-of-**keys** (addressable); screen headings use the readable **names**.
+back-link is `cd ..`. **Always render in markdown — never a widget.** The heartbeat shows only the
+**current project** key; the screen heading carries the full path as readable **names**. (Worked
+examples of every screen: `example.md`. What data each needs + the single call to deliver it:
+`required-data.md`.)
 
 **Glyphs — monochrome unicode only** (no colour emoji; the only HTML is `<br>`; colour, size and vertical-align are the client's, not ours):
 
-- **column-header glyphs:** `☲` docs · `⛁` tables · `◷` updated · `⤓` size · `✎` access · `⚑` state
+- **glyphs:** `☲` documents · `⛁` tables · `◰` assets · `⇄` connectors · `◷` updated · `⤓` size · `✎` access · `⚑` state
 - **access cells:** `⌂` home · `rw` write · `r` read-only
 - **state cells:** `✓` active · `○` saved · `✗` archived · `→` superseded — glyph only, no word
 - **relative time** (the `◷` column): abbreviated — `2 mins` · `3 hrs` · `4 days` · `2 wks` · `5 mos`
@@ -83,22 +85,43 @@ relative updated · `✎` access cell = `⌂` home / `rw` write / `r` read (from
 Only `tables` is live in `nuco_context` today; description / members / docs / updated → placeholder
 (`—`) until the calls return them.
 
-**project → detail** — `cd <project>`: a `## <name>` heading (+ a description line if present),
-then these sections, each **omitted when empty**:
+**project → home** — `cd <project>`: a **section index**, not the full lists.
 
-- **Documents (n)** — `doc_search` that project → `| Document | Type | ◷ | ⚑ |`. The `Document`
-  cell stacks **bold Title** + ` vX` then a one-line subtitle (the `summary`, truncated) via
-  `<br>`; `◷` = relative updated; `⚑` (state) cell = **glyph only** (`✓`/`○`/`✗`/`→`), no word.
-  `vX` is a placeholder until the API returns version.
-- **Tables (n)** — `db_describe` → `| Table | Rows |`. **Always hide the `doc` and `nuco_audit`
-  tables** (the documents store + audit log — system tables surfaced elsewhere); list only the
-  project's own data tables. Table names are **plain, not bold**.
-- **Assets (n)** — `file_list` → `| Asset | ⤓ | ◷ |` (`⤓` heads the size column; no type column —
-  the filename extension carries it). The `Asset` name is a **markdown link to its `webViewLink`**
-  (opens the Drive file), **plain, not bold**. Size is compact `Kb`/`Mb` — `2.4Mb` · `12Kb` ·
-  `340b`, no space (quiet metadata, not `2.4 MB`). Empty → _No assets yet_.
-- **People** · **Connectors** — `— pending` until the API returns them. Members count for the
-  header comes from `project_members` (one call, this project).
+- **Heading**: project name as `# <Name>` (h1); home → `# ⌂ Home`.
+- Under it, on its **own paragraph** (a blank line above and below for spacing — **not** a trailing
+  `<br>`, which renders literally here), the `_description_`; then a one-line **metadata strip**:
+  `✎ Access: read + write | ◷ Updated <relative>` (writable) / `Access: read only | ◷ Updated <relative>`
+  (read-only — no pencil). The `✎` pencil marks write; `◷ Updated` is the project's last-activity,
+  **derived** from `max(created_at)` until the API returns a project `updated`.
+- Then the section table with a **blank header row** (markdown requires the row, so leave its cells
+  empty — it renders as an empty bar; true zero-header isn't possible):
+
+| | |
+|:---|:-:|
+| **Documents**<br>type breakdown, top types + `+N` | ☲ n |
+| **DB**<br>table names, up to a max + `+N` (`doc`/`nuco_audit` excluded) | ⛁ n |
+| **Assets**<br>counts by extension (`4 pdf · 2 png`) | ◰ n |
+| **Connectors**<br>connector names | ⇄ n |
+| **Members**<br>member emails | |
+
+The section cell stacks (via `<br>`) the **bold name** + a one-line description on the left; the
+**glyph sits beside the count** (`☲ 44`) on the right — mirroring the root grid (glyph over the
+count column), so the home teaches the pattern: the word names the section, glyph-next-to-count is
+the dense-grid shape. Keep the word. **Members** is a row too but with **no glyph and no count** —
+just the word + the emails (`project_members`, placeholder until wired). Counts/descriptions are
+placeholders until the API returns them; show a real `0` (not `—`) where the count is genuinely zero.
+
+**Section views** (drill-in — `/nuco-db`, `/nuco-assets`, naming a section or type) render the
+*full* list for one section:
+
+- **Documents** — `doc_search` → `| Document | Type | ◷ | ⚑ |`. The `Document` cell stacks **bold
+  Title** + ` vX` then a one-line subtitle (`summary`, truncated) via `<br>`; `◷` = relative
+  updated; `⚑` (state) cell = **glyph only** (`✓`/`○`/`✗`/`→`). A **type-scoped** list
+  (`cd docs/<type>`) drops the `Type` column. `vX` is a placeholder until the API returns version.
+- **Tables** — `db_describe` → `| Table | Rows |`; **hide `doc`/`nuco_audit`**; names plain, not bold.
+- **Assets** — `file_list` → `| Asset | ⤓ | ◷ |` (no type column — the extension carries it). The
+  name is a **markdown link to its `webViewLink`** (plain, not bold); size compact `Kb`/`Mb`
+  (`2.4Mb` · `12Kb` · `340b`, no space); empty → _No assets yet_.
 
 **file → document or table** — `cd <doc|table>`:
 
@@ -116,7 +139,7 @@ markdown** (centred headers win); the right-align applies only in a render that 
 and body independently (HTML/widget). **Capitalise the first letter of every title** (column headers, row titles, headings). Keep
 columns few, degrade genuinely-empty values to `—`; for fields the API doesn't return yet, show
 an interface **placeholder** (`vX`, `_description_`, `Updated —`) rather than nothing. End the
-screen with the heartbeat breadcrumb.
+screen with the current-project heartbeat.
 
 ## Routing — private by default, shared on purpose
 
@@ -152,7 +175,8 @@ prose. You're the DBA: inspect with `db_describe`, `dry_run` before big changes,
 - Don't hoard — capture on explicit intent + the engaged toggle, not every sentence.
 - If a write is denied, narrate it and offer the read path — never pretend it worked.
 
-When engaged, end **every reply** with a one-line heartbeat: an em dash, then the cursor as a
-`·`-separated breadcrumb — `— nuco` at root, `— nuco · loaf` inside a project, `— nuco · loaf · orders`
-at a file. It's both the live indicator of where the cursor sits and a smoke alarm: if it stops
-appearing, the client likely dropped the skill, so re-engage.
+When engaged, end **every reply** with a one-line heartbeat showing only the **current project** —
+`— nuco` at root, `— nuco · <project>` once inside a project. It stays there at **any depth**
+(documents, a table, a doc): it never grows past the project, because the screen heading already
+carries the deeper path. It's both the live indicator of which project you're in and a smoke alarm:
+if it stops appearing, the client likely dropped the skill, so re-engage.
