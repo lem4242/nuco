@@ -1,38 +1,52 @@
 # nuco views → required data (one call per view)
 
-Render rules are in `SKILL.md` → "Rendering"; worked screens are in `example.md`. This is the
-**data backlog**: the goal is that **one tool call paints one view**. For each screen — does a
-single call do it today, and if not, the platform change to get there.
+Render rules are in `SKILL.md` → "Rendering"; worked screens are in `example.md`. This was the
+**data backlog**: the goal is that **one tool call paints one view**.
+
+> **Status — shipped 2026-06-27** (`nuco2-project` → `feat/registry-cache-and-profiles`). The data
+> now exists; every view below is served by a single call. What landed, per view:
 
 ## Per view
 
-| View | One call today? | Action |
+| View | One call now? | How |
 |:--|:-:|:--|
-| **root → projects** | ✗ | **Extend `nuco_context`** — per project add `name`, `description`, `doc_count`, `members[]`, `connector_count`, `updated` (already has `table_count`, `can_write`). |
-| **project → home** | ✗ (~5 calls) | **New `project_home(project)`** — meta + `documents{count, by_type}` · `tables{count, names}` · `assets{count, by_ext}` · `connectors{count, names}` · `members[]`. |
-| **documents** (+ type-scoped) | ✗ | **New `doc_list(project, type?, state?, sort, limit, offset)`** → `title, type, version, state, updated, summary, slug`. Type filter gives the type-scoped view. |
-| **db** (tables list) | ✗ | **Extend `db_describe`** (list form) — add approx `row_count` (`pg_class.reltuples`, no scan) + a `system` flag on `doc`/`nuco_audit`. |
-| **table view** | ✗ (2 calls) | **Extend `db_read`** — return column **types** alongside the rows (drives the cell-type renderers). |
+| **root → projects** | ✓ | **`nuco_context`** — each tile carries `name`, `description`, `access`, `doc_count`/`doc_counts`, `table_count`, `member_count`, `members[]` (display names), `connector_count` (0 — out of scope), `updated`. Counts come from cached registry columns; member names join the proxy-only `nuco_user`. |
+| **project → home** | ✓ | **`nuco_context(project=<key>)`** — a bundle: `meta{name, description, access, updated}` · `documents{count, by_state, by_type[], page[]}` · `tables[]{name, system}` · `assets{count, by_ext}` · `connectors{count:0, names:[]}` · `members[]{email, username, role}`. (Replaces the planned separate `project_home`.) |
+| **documents** (+ type-scoped) | ✓ | **`doc_search`** now returns `version` + `updated` (joins `doc_current`), so a hit renders the full tile. The bundle's `documents.page` seeds the list; a deterministic paginated `doc_list` stays a future add for deep pages. |
+| **db** (tables list) | ✓ | **`db_describe`** (list form) returns approximate `row_count` (`pg_class.reltuples`, no scan) + a `system` flag on `doc`/`nuco_audit`. |
+| **table view** | ✓ | **`db_read`** returns `column_types[]` alongside the rows (in-process OID→name; `numeric` stays a string for precision — the type tells the renderer it's money). |
 | **assets** | ✓ | `file_list` is complete (name, mime, size, modifiedTime, webViewLink). |
-| **document view** | ✓ | `doc_read` is complete (title, type, version, state, body, created_at). |
-| **search** | ✗ (2 calls) | *Optional*: unified `search`, or `doc_search` with `include_files`. Lowest priority. |
+| **document view** | ✓ | `doc_read` returns a **document object** `{doc_key, version, type, state, title, summary, body, author, author_username, updated}` (author resolved to a display name via the proxy-only `nuco_user`, email fallback). |
+| **search** | ~ | `doc_search` paints it (now with `version`/`updated`); a unified docs+files `search` stays *optional*, lowest priority. |
 
-## The platform work, deduped
+## What shipped (deduped)
 
-**Extend 3 existing tools**
-- `nuco_context` → per project: `name`, `description`, `doc_count`, `members[]`, `connector_count`, `updated`.
-- `db_describe` (list form) → per table: approximate `row_count`, `system` flag.
-- `db_read` → column `types` alongside the rows.
+**Extended 3 existing tools**
+- `nuco_context` → per project: cached `name`, `description`, `doc_count`/`doc_counts`, `member_count`,
+  `members[]`, `connector_count`, `updated`, plus an `access` cell — and a new **`project=<key>` bundle
+  mode** (the whole home in one call, subsuming the planned `project_home`).
+- `db_describe` (list form) → approximate `row_count` + `system` flag per table.
+- `db_read` → `column_types[]` alongside the rows.
 
-**Add 2 new tools**
-- `project_home(project)` → the entire home in one call (meta + per-section summaries + members). Kills the ~5-call fan-out — **highest value**.
-- `doc_list(project, type?, state?, sort, limit, offset)` → deterministic, paginated list. Replaces "search-as-a-list"; powers the documents view and its type-scoped form.
+**Enriched, not a new tool**
+- `doc_search` → adds `version` + `updated` (joins `doc_current`), so a hit renders the full tile.
+  A deterministic paginated `doc_list` is deferred — the bundle's `documents.page` + `doc_search`
+  cover today's views.
 
-**Already complete** — `file_list` (assets), `doc_read` (document view).
+**Reshaped** — `doc_read` → a document object (was `{columns, rows}`), with `author_username`.
 
-**Optional** — unified `search` (docs + files in one call).
+**New write paths (round-trip closure)**
+- `project_update(project, name?, description?)` — rename / re-describe in place (data-plane,
+  write-member self-service; the schema key stays immutable).
+- `user_set_username(username)` — set your own display name (defaults to the email local-part).
 
-## Notes
-- `updated` everywhere = last-activity timestamp; derive from `max(created_at)` / `nuco_audit` until it's first-class on the model.
-- `members[]` = verified emails, returned in the **data plane** (not the admin `project_members` tool).
-- `doc_count`, `by_type`, `by_ext`, `row_count` are cheap aggregates the server can compute in the same query — they don't need their own round-trips.
+**Already complete** — `file_list` (assets).  **Optional** — unified `search` (docs + files in one call).
+
+## How the data is kept cheap
+- `updated` / `doc_count` / `doc_counts` are **cached columns on `public.nuco_project`**, maintained by
+  a SECURITY DEFINER AFTER-INSERT trigger on each project's `doc` (recompute from `doc_current`,
+  `FOR UPDATE`-serialized). `member_count` is maintained by the admin grant/revoke verbs. So the grid
+  is one cheap read, not a per-project aggregate fan-out.
+- `members[]` resolve display names from a new **proxy-only `public.nuco_user`** directory (username
+  defaults to the email local-part, updateable) — member lists + doc authors render names, not emails.
+- `connector_count` is `0` — connectors are out of scope this pass (the home renders a placeholder).

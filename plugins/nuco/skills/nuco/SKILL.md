@@ -82,8 +82,8 @@ examples of every screen: `example.md`. What data each needs + the single call t
 The `Project` cell stacks (via `<br>`): **bold Name**, a one-line description, then the **member
 names as a plain comma list** (no label). Columns: `☲` docs · `⛁` tables (= `table_count`) · `◷`
 relative updated · `✎` access cell = `⌂` home / `rw` write / `r` read (from personal / `can_write`).
-Only `tables` is live in `nuco_context` today; description / members / docs / updated → placeholder
-(`—`) until the calls return them.
+All columns are live from `nuco_context` now (cached `doc`/`table`/`member` counts, member names,
+`updated`, the `access` cell); degrade a genuinely-empty value to `—`, a true-zero count to `0`.
 
 **project → home** — `cd <project>`: a **section index**, not the full lists.
 
@@ -91,8 +91,8 @@ Only `tables` is live in `nuco_context` today; description / members / docs / up
 - Under it, on its **own paragraph** (a blank line above and below for spacing — **not** a trailing
   `<br>`, which renders literally here), the `_description_`; then a one-line **metadata strip**:
   `✎ Access: read + write | ◷ Updated <relative>` (writable) / `Access: read only | ◷ Updated <relative>`
-  (read-only — no pencil). The `✎` pencil marks write; `◷ Updated` is the project's last-activity,
-  **derived** from `max(created_at)` until the API returns a project `updated`.
+  (read-only — no pencil). The `✎` pencil marks write; `◷ Updated` is the project's last-activity
+  (`updated`) — now a cached, first-class field on the bundle.
 - Then the section table with a **blank header row** (markdown requires the row, so leave its cells
   empty — it renders as an empty bar; true zero-header isn't possible):
 
@@ -108,8 +108,8 @@ The section cell stacks (via `<br>`) the **bold name** + a one-line description 
 **glyph sits beside the count** (`☲ 44`) on the right — mirroring the root grid (glyph over the
 count column), so the home teaches the pattern: the word names the section, glyph-next-to-count is
 the dense-grid shape. Keep the word. **Members** is a row too but with **no glyph and no count** —
-just the word + the emails (`project_members`, placeholder until wired). Counts/descriptions are
-placeholders until the API returns them; show a real `0` (not `—`) where the count is genuinely zero.
+just the word + the member names (the bundle's `members[]` — `username`, email fallback). Counts and
+descriptions are live from the bundle; show a real `0` (not `—`) where a count is genuinely zero.
 
 **Section views** (drill-in — `/nuco-db`, `/nuco-assets`, naming a section or type) render the
 *full* list for one section:
@@ -117,7 +117,7 @@ placeholders until the API returns them; show a real `0` (not `—`) where the c
 - **Documents** — `doc_search` → `| Document | Type | ◷ | ⚑ |`. The `Document` cell stacks **bold
   Title** + ` vX` then a one-line subtitle (`summary`, truncated) via `<br>`; `◷` = relative
   updated; `⚑` (state) cell = **glyph only** (`✓`/`○`/`✗`/`→`). A **type-scoped** list
-  (`cd docs/<type>`) drops the `Type` column. `vX` is a placeholder until the API returns version.
+  (`cd docs/<type>`) drops the `Type` column. `vX` = the document `version` (live from `doc_search`).
 - **Tables** — `db_describe` → `| Table | Rows |`; **hide `doc`/`nuco_audit`**; names plain, not bold.
 - **Assets** — `file_list` → `| Asset | ⤓ | ◷ |` (no type column — the extension carries it). The
   name is a **markdown link to its `webViewLink`** (plain, not bold); size compact `Kb`/`Mb`
