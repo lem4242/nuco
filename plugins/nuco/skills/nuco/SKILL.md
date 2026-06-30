@@ -1,183 +1,122 @@
 ---
 name: nuco
-description: Use when the nuco shared store is woken — capturing what the user points at ("remember this", "note that", "save where we got to", "write that up"), recalling past work ("what did we decide about…", "find the memory on…"), navigating the store ("show me where I am", "switch project", "list the tables", "show the assets", "go home"), or working with the team's shared tables. On "what did we…" questions, search nuco BEFORE the web. Capture only on explicit intent.
+description: Use when the nuco shared store is woken — capturing what the user points at ("remember this", "note that", "write that up"), recalling past work ("what did we decide about…", "find the memory on…"), navigating the store ("show me where I am", "switch project", "list tables"), or working with shared tables. On "what did we…" questions, search nuco BEFORE the web. Capture only on explicit intent.
 ---
 
 # nuco — shared-memory operating judgment
 
-nuco is the team's shared, durable store: documents (append-only prose) and tables (structured
-data), organised into projects. The tools and the server's own instructions tell you how to
-call them — `nuco_context` first, `project` to target a scope, `doc_*` for prose, `db_*` for tables.
-This skill is only about doing it well.
-
-The line that matters: your client's own memory is private and ephemeral; nuco is shared and
-durable. Put something in nuco when it must outlive this chat, be seen by a colleague, or be read by
-a later job. Keep everything else in the client.
+nuco is the team's shared, durable store: append-only **documents** (prose) and **tables**
+(structured data), organised into **projects**. The tools tell you how to call them — `nuco_context`
+first, `project` to target a scope, `doc_*` for prose, `db_*` for tables. This skill is how to do it
+well. The line that matters: your client's memory is private and ephemeral; nuco is shared and
+durable. Put something here when it must outlive this chat, be seen by a colleague, or be read by a
+later job — keep everything else in the client.
 
 ## Capturing — the user gestures, you author
 
-The user points ("remember this", "note that", "write that up"); you compose the document and
-you choose its state. The user never writes store text and never picks a category.
+The user points ("remember this", "write that up"); you compose the document and pick its **state**
+by where the idea is (one axis):
 
-Pick the state by where the idea is, not what it's about — one universal axis:
-
-- **saved** — captured, not yet in force. The default. A working note, a proposal, a snapshot you're
-  recording unilaterally — anything you're keeping but not yet asking anyone to rely on.
-- **active** — current and relied-on. Promote to this when the thing is in force: a write-up the user
-  agreed to, a decision that now holds, a durable fact to rely on. **`state = active` means "rely on this".**
+- **saved** — captured, not yet relied on. The default: a working note, a proposal, a snapshot.
+- **active** — current and in force. `state = active` means "rely on this".
 - **archived** — retired or superseded.
 
-`summary` doubles as the document's subtitle — write it as a short one-line description, not a
-restatement of the title.
+Also **required**: a free-text `type` (lower-case, ≥3 chars) for *what kind* of doc — `note` (default),
+`memory`, `decision`, `spec`… orthogonal to state; you can narrow recall by it (`type:"decision"`).
+`summary` is the subtitle — a one-line description, not a restatement of the title.
 
-**Classify every save with a `type`** — a short free-text genre (lower-cased, >= 3 chars) for *what
-kind of doc this is*, orthogonal to state. Pick `note` when nothing more specific fits; `memory` for a
-durable fact to recall, `decision` for a choice that holds, `spec`/`brief`/etc. as they emerge. It's
-**required** — `doc_write` rejects a save without one — and you can narrow recall by it
-(`doc_search type:"decision"`).
-
-One idea = one `doc_key`, advanced by version. A capture that moves the same idea forward is the
-next version of that `doc_key` (pass the existing key), not a new document. The natural arc
-**saved → … → active** is the version history of one key.
-
-Keep the negative space. When a proposal is rejected, don't delete it — save the next version and
-write down why it was rejected (the feedback that killed it) in the new body/summary. The
-"why-not" is often worth more later than the thing that won. Append-only means the trail survives;
-use it.
-
-Keep documents digestible. Present ~a page for agreement; if a thing is big, split it into several
-documents rather than one sprawling one.
+One idea = one `doc_key`, advanced by version (pass the existing key to move it forward; saved→active
+is just version history). Append-only: when a proposal is rejected, save the next version with the
+*why-not*, don't delete — the killed reasoning is often worth more later. Keep docs digestible
+(~a page); split a big thing into several rather than one sprawl.
 
 ## Recalling — store first, cite always
 
-- On "what did we decide / find / agree", **search nuco before the web**. Only fall back to the
-  web if nothing lands; never silently web-search a "what did we…" question.
-- **Cite provenance:** when you answer from the store, name the source — title · state · date. Say
-  plainly whether you're grounded in a stored doc or inferring.
-- **Stale data:** don't say "I don't have it" — say when it was last updated and offer to work with it
-  or refresh ("sales last updated Tue 11pm — refresh, or use what we've got?").
-
-## Rendering — the navigable status screens
-
-nuco is a shell. An ambient **cursor** persists between messages at one of three levels —
-**root** (no project), **project**, or **file** (a document or table). `/nuco` (or "ls" /
-"show me") renders **the current level** — "show me where I am"; naming a child is `cd`, a
-back-link is `cd ..`. **Always render in markdown — never a widget.** The heartbeat shows only the
-**current project** key; the screen heading carries the full path as readable **names**. (Worked
-examples of every screen: `example.md`. What data each needs + the single call to deliver it:
-`required-data.md`.)
-
-**Glyphs — monochrome unicode only** (no colour emoji; the only HTML is `<br>`; colour, size and vertical-align are the client's, not ours):
-
-- **glyphs:** `☲` documents · `⛁` tables · `◰` assets · `⇄` connectors · `◷` updated · `⤓` size · `✎` access · `⚑` state
-- **access cells:** `⌂` home · `rw` write · `r` read-only
-- **state cells:** `✓` active · `○` saved · `✗` archived · `→` superseded — glyph only, no word
-- **relative time** (the `◷` column): abbreviated — `2 mins` · `3 hrs` · `4 days` · `2 wks` · `5 mos`
-
-**root → projects** — `nuco_context`, one row per project (mobile-narrow):
-
-| Project | ☲ | ⛁ | ◷ | ✎ |
-|:---|:---:|:---:|:---:|:---:|
-
-The `Project` cell stacks (via `<br>`): **bold Name**, a one-line description, then the **member
-names as a plain comma list** (no label). Columns: `☲` docs · `⛁` tables (= `table_count`) · `◷`
-relative updated · `✎` access cell = `⌂` home / `rw` write / `r` read (from personal / `can_write`).
-All columns are live from `nuco_context` now (cached `doc`/`table`/`member` counts, member names,
-`updated`, the `access` cell); degrade a genuinely-empty value to `—`, a true-zero count to `0`.
-
-**project → home** — `cd <project>`: a **section index**, not the full lists.
-
-- **Heading**: project name as `# <Name>` (h1); home → `# ⌂ Home`.
-- Under it, on its **own paragraph** (a blank line above and below for spacing — **not** a trailing
-  `<br>`, which renders literally here), the `_description_`; then a one-line **metadata strip**:
-  `✎ Access: read + write | ◷ Updated <relative>` (writable) / `Access: read only | ◷ Updated <relative>`
-  (read-only — no pencil). The `✎` pencil marks write; `◷ Updated` is the project's last-activity
-  (`updated`) — now a cached, first-class field on the bundle.
-- Then the section table with a **blank header row** (markdown requires the row, so leave its cells
-  empty — it renders as an empty bar; true zero-header isn't possible):
-
-| | |
-|:---|:-:|
-| **Documents**<br>type breakdown, top types + `+N` | ☲ n |
-| **DB**<br>table names, up to a max + `+N` (`doc`/`nuco_audit` excluded) | ⛁ n |
-| **Assets**<br>counts by extension (`4 pdf · 2 png`) | ◰ n |
-| **Connectors**<br>connector names | ⇄ n |
-| **Members**<br>member emails | |
-
-The section cell stacks (via `<br>`) the **bold name** + a one-line description on the left; the
-**glyph sits beside the count** (`☲ 44`) on the right — mirroring the root grid (glyph over the
-count column), so the home teaches the pattern: the word names the section, glyph-next-to-count is
-the dense-grid shape. Keep the word. **Members** is a row too but with **no glyph and no count** —
-just the word + the member names (the bundle's `members[]` — `username`, email fallback). Counts and
-descriptions are live from the bundle; show a real `0` (not `—`) where a count is genuinely zero.
-
-**Section views** (drill-in — naming a section or type, or `/nuco-db`/`/nuco-search`) render the
-*full* list for one section:
-
-- **Documents** — `doc_search` → `| Document | Type | ◷ | ⚑ |`. The `Document` cell stacks **bold
-  Title** + ` vX` then a one-line subtitle (`summary`, truncated) via `<br>`; `◷` = relative
-  updated; `⚑` (state) cell = **glyph only** (`✓`/`○`/`✗`/`→`). A **type-scoped** list
-  (`cd docs/<type>`) drops the `Type` column. `vX` = the document `version` (live from `doc_search`).
-- **Tables** — `db_describe` → `| Table | Rows |`; **hide `doc`/`nuco_audit`**; names plain, not bold.
-- **Assets** — `file_list` → `| Asset | ⤓ | ◷ |` (no type column — the extension carries it). The
-  name is a **markdown link to its `webViewLink`** (plain, not bold); size compact `Kb`/`Mb`
-  (`2.4Mb` · `12Kb` · `340b`, no space); empty → _No assets yet_.
-
-**file → document or table** — `cd <doc|table>`:
-
-- **document** (`doc_read`) — a `## <Title>` heading, a meta line
-  `<type> · vX · <state glyph> · ◷ <relative>`, then the **body rendered as markdown** in the reply.
-- **table** (`db_read` + `db_describe`) — a markdown table following the header rule (numbers
-  centred in markdown, right-aligned only in an HTML render); `date` absolute, `since` relative
-  (mins/hr/day…); `status` = the plain state word; rich cells (tags / user / progress) **fall
-  back to raw text**. Cap 500 rows; show the count and whether it `truncated`.
-
-**Always:** header row = first column left, **every other column centred** (`:---:`), headers
-included. Right-alignment is reserved for **number columns only** and never used on text — but
-markdown ties a column's header and body to one setting, so a number column is **centred in
-markdown** (centred headers win); the right-align applies only in a render that can align header
-and body independently (HTML/widget). **Capitalise the first letter of every title** (column headers, row titles, headings). Keep
-columns few, degrade genuinely-empty values to `—`; for fields the API doesn't return yet, show
-an interface **placeholder** (`vX`, `_description_`, `Updated —`) rather than nothing. End the
-screen with the current-project heartbeat.
+- On "what did we decide / find / agree", **search nuco before the web**; only fall back if nothing
+  lands. Search `state:"active"` first, then broaden.
+- **Cite provenance** — title · state · date; say plainly whether you're grounded in a doc or inferring.
+- **Stale data**: don't say "I don't have it" — say when it was last updated and offer to use or refresh it.
 
 ## Routing — private by default, shared on purpose
 
-- Omitting `project` keeps a write in your personal project (private). That's the safe default.
-- Name the shared project for anything a colleague or a job needs to see. The write tells you
-  where it landed — surface that, and surface denials ("no write access there — here's the read path").
+Omitting `project` keeps a write in your personal project (private — the safe default). Name a shared
+project for anything a colleague or job must see. The write tells you where it landed — surface that,
+and surface denials ("no write access there — here's the read path"); never pretend a denied write worked.
 
 ## Numbers live in tables
 
-Totals, joins, comparisons, anything quantitative → tables, with SQL. Don't reason figures out of
-prose. You're the DBA: inspect with `db_describe`, `dry_run` before big changes, add indexes if slow.
+Totals, joins, comparisons → tables with SQL; don't reason figures out of prose. You're the DBA:
+inspect with `db_describe`, `dry_run` before big changes, add indexes if slow.
+
+## Rendering — navigable status screens
+
+nuco is a shell. An ambient **cursor** persists between messages at **root / project / file**.
+`/nuco` (or "show me", "ls") renders the **current level**; naming a child is `cd`, a back-link `cd ..`.
+**Always markdown, never a widget.** One call paints each view (named below).
+
+**Glyphs** (monochrome unicode; the only HTML is `<br>`): `☲` docs · `⛁` tables · `◰` assets · `⇄`
+connectors · `◷` updated · `⤓` size · `✎` access · `⚑` state. Access cells: `⌂` home · `rw` write ·
+`r` read. State cells: `✓` active · `○` saved · `✗` archived · `→` superseded. Time abbreviated
+(`2 mins` · `3 hrs` · `4 days` · `2 wks` · `5 mos`).
+
+**Rules.** First column + free-text columns left; number / glyph columns centred. Capitalise headings
+and text headers; leave raw DB identifiers (table & column names) verbatim. State is a **glyph** in
+tables, spelled out only in a doc's own meta line. Degrade an empty value → `—`, a true-zero count →
+`0`. The heading carries the full path as **names**; the heartbeat shows only the project.
+
+**root** (`nuco_context`) — one row per project; the Project cell stacks **Name** / description / members:
+
+| Project | ☲ | ⛁ | ◷ | ✎ |
+|:--|:-:|:-:|:-:|:-:|
+| **Monicavinader**<br>Demi-fine jewellery research<br>lynton@vivelia.co.uk, lynton@d3r.com | 44 | 3 | 2 days | rw |
+
+**project home** (`nuco_context(project=…)`) — a section index, not full lists. `# <Name>` (your home →
+`# ⌂ Home`); the `_description_` on its own paragraph; then `✎ Access: read + write | ◷ Updated 2 days`
+(drop the pencil when read-only); then the sections (blank header row), glyph beside the count:
+
+| | |
+|:--|:-:|
+| **Documents**<br>19 note · 16 findings · +9 | ☲ 44 |
+| **DB**<br>competitor_matrix · competitor_pricing | ⛁ 3 |
+| **Assets**<br>4 pdf · 2 png | ◰ 6 |
+| **Connectors**<br>none | ⇄ 0 |
+| **Members**<br>lynton@vivelia.co.uk, lynton@d3r.com | |
+
+**section views** (drill-in) — the full list for one section:
+
+- **Documents** (`doc_search`) → `| Document | Type | ◷ | ⚑ |`; cell stacks **Title** `vX` / subtitle.
+  A type-scoped list (`cd docs/<type>`) drops the Type column. **Search** renders the same, filtered.
+- **Tables** (`db_describe`) → `| Table | Rows |`; names plain; hide `doc` / `nuco_audit`.
+- **Assets** (`file_list`) → `| Asset | ⤓ | ◷ |`; name links to its `webViewLink`; sizes compact
+  (`2.4Mb` · `12Kb` · `340b`); empty → _No assets yet_.
+
+| Document | Type | ◷ | ⚑ |
+|:--|:-:|:-:|:-:|
+| **Competitor review (8 brands)** v3<br>Benchmark vs 8 demi-fine brands | note | 2 days | ✓ |
+
+**file views** — `cd <doc|table>`:
+
+- **document** (`doc_read`) — `## <Title>`, a meta line `note · v3 · ✓ active · ◷ 2 days`, then the
+  **body rendered as markdown**.
+- **table** (`db_read` + `db_describe`) — a markdown table by the rules above; `date` absolute, `since`
+  relative, `status` the plain word, rich cells fall back to raw text. Cap 500 rows; show the count and
+  whether it `truncated`.
 
 ## Usage notes that bite
 
-- Table filters (`where`) take three shapes: `{"col": value}` (eq), `{"col": [a, b]}` (in), or the
-  explicit `{"col": {"op": "gte", "value": 100}}` for everything else (`eq/ne/lt/lte/gt/gte/in/is_null`).
-  The operator object needs both literal keys — `{"col": {"gte": 100}}` is rejected.
-- Numeric columns come back as strings (`"620.00"`) — don't do naive math on them.
-- Reads cap at 500 rows (`truncated:true`); `limit` only *lowers* that cap, never raises it. For a
-  table bigger than that, aggregate or paginate in SQL rather than expecting every row.
-- Search stems inflections (flag↔flagged) but not derivational (reconcile↔reconciliation) or
-  compound (rollback↔"roll back") variants — expand the query with the variants yourself.
-- Search ranks by relevance and state: `active` is boosted, `archived` is demoted (still findable),
-  `saved` is neutral. A `saved` or `archived` hit can still surface — check the `state` column: a
-  `saved` hit isn't yet in force, an `archived` hit isn't current.
-- For a relied-on answer, search **`state:"active"` first**, then broaden (drop the filter) only if
-  nothing lands. `doc_search` with no filter returns every state, so don't treat an unfiltered hit as
-  authoritative without checking its `state`.
+- `where` takes `{"col": v}` (eq), `{"col": [a,b]}` (in), or `{"col": {"op":"gte","value":100}}` (the
+  operator object needs **both** literal keys; `{"col":{"gte":100}}` is rejected). Ops: eq/ne/lt/lte/gt/gte/in/is_null.
+- Numeric columns come back as **strings** (`"620.00"`) — no naive math.
+- Reads cap at 500 rows (`truncated:true`); `limit` only *lowers* that. Bigger → aggregate/paginate in SQL.
+- Search stems inflections (flag↔flagged) but not derivational/compound variants — expand the query
+  yourself. It ranks by relevance + state (active boosted, archived demoted but still findable); an
+  unfiltered hit isn't authoritative until you check its `state`.
 
 ## Discipline
 
-- Confirm before destructive/irreversible writes.
-- Don't hoard — capture on explicit intent while the store is woken, not every sentence.
-- If a write is denied, narrate it and offer the read path — never pretend it worked.
-
-Once woken (via `/nuco` or natural phrase), end **every reply** with a one-line heartbeat showing
-only the **current project** — `— nuco` at root, `— nuco · <project>` once inside a project. It stays
-there at **any depth** (documents, a table, a doc): it never grows past the project, because the
-screen heading already carries the deeper path. It's both the live indicator of which project you're
-in and a smoke alarm: if it stops appearing, the client likely dropped the skill, so re-run `/nuco`.
-Keep it up until context drops the skill or the user says `nuco off`.
+- Confirm before destructive/irreversible writes; capture on explicit intent while woken, not every
+  sentence; surface denials, never fake a write.
+- **Heartbeat:** once woken, end **every reply** with a one-line heartbeat showing only the current
+  project — `— nuco` at root, `— nuco · <project>` inside one (at any depth; the heading carries the
+  rest). It's a smoke alarm: if it stops, context dropped the skill — re-run `/nuco`. Keep it up until
+  context drops the skill or the user says `nuco off`.
