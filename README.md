@@ -66,8 +66,8 @@ user needs their own git read access.)
 
 ## Use it
 
-- **Toggle:** `/nuco on` engages the store and appends a status heartbeat to each reply;
-  `/nuco off` stands down.
+- **Wake:** `/nuco` wakes the store, shows where you are, and appends a status heartbeat to each
+  reply; it stays woken until context drops it (the heartbeat stops) or you run `/nuco off`.
 - **Skill:** "remember this", "save to nuco", "find in nuco", "what did we decide about…", or any
   nuco table work triggers the `nuco` skill.
 - **MCP tools:** once connected (and authorized), the Postgres tools appear — check with `/mcp`.

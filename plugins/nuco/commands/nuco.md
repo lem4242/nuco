@@ -1,25 +1,26 @@
 ---
-description: Toggle the nuco shared store on/off and manage the per-message heartbeat
-argument-hint: "[on|off]"
+description: Wake the nuco shared store and show where you are; `off` to stand down
+argument-hint: "[off]"
 ---
 
-The user invoked the nuco store toggle with argument: `$ARGUMENTS`
+The user invoked nuco with argument: `$ARGUMENTS`
 
-`/nuco` is an optional desktop shortcut — the same toggle works by natural phrase ("use nuco" /
-"nuco off"), and every nuco capability is reachable by phrase (no slash is ever required).
+`/nuco` is an optional desktop shortcut — the same wake works by natural phrase ("use nuco"), and
+every nuco capability is reachable by phrase (no slash is ever required).
 
 Use the **nuco** skill. Interpret the argument:
 
-- **`on`** → engage the nuco shared store in **engaged mode**: stay listening for
-  capture/recall intent. From now until stood down, append a status heartbeat as the last line of
-  **every** reply: the breadcrumb heartbeat — `— nuco`, growing as the cursor descends (`— nuco · loaf · orders`), per the skill.
-- **empty** → if not engaged, engage (as `on`) and render the **root** status screen (the
-  project grid). If already engaged, this is `ls`: render the status screen for the **current
-  level** (root / project / file).
+- **empty** → **wake**: force-load the **nuco** skill and render **where you are** — the status
+  screen for the **current level** (root / project / file). If there's no cursor yet, that's the
+  **root** screen (the project grid). From now on, append the breadcrumb heartbeat as the last line
+  of **every** reply — `— nuco` at root, `— nuco · <project>` once inside a project — per the skill.
+  Naming a project or document moves the cursor and renders the next level.
 - **`off`** → stop appending the heartbeat and stand down from the store.
 
+There is no separate "on" — waking *is* invoking, and you stay woken until context drops the skill
+(the heartbeat stops) or the user says `off`. Re-run `/nuco` to wake it again.
+
 Rendering is **markdown**, per the **nuco** skill's "Rendering" section — never a widget.
-Naming a project or document moves the cursor and renders the next level.
 
 The heartbeat is a smoke alarm: if it stops appearing, context was likely lost and the user should
-re-engage. Never fake it.
+re-run `/nuco`. Never fake it.

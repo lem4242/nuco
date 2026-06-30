@@ -1,6 +1,6 @@
 ---
 name: nuco
-description: Use when the nuco shared store is engaged — capturing what the user points at ("remember this", "note that", "save where we got to", "write that up"), recalling past work ("what did we decide about…", "find the memory on…"), or working with the team's shared tables. On "what did we…" questions, search nuco BEFORE the web. Capture only on explicit intent.
+description: Use when the nuco shared store is woken — capturing what the user points at ("remember this", "note that", "save where we got to", "write that up"), recalling past work ("what did we decide about…", "find the memory on…"), navigating the store ("show me where I am", "switch project", "list the tables", "show the assets", "go home"), or working with the team's shared tables. On "what did we…" questions, search nuco BEFORE the web. Capture only on explicit intent.
 ---
 
 # nuco — shared-memory operating judgment
@@ -111,7 +111,7 @@ the dense-grid shape. Keep the word. **Members** is a row too but with **no glyp
 just the word + the member names (the bundle's `members[]` — `username`, email fallback). Counts and
 descriptions are live from the bundle; show a real `0` (not `—`) where a count is genuinely zero.
 
-**Section views** (drill-in — `/nuco-db`, `/nuco-assets`, naming a section or type) render the
+**Section views** (drill-in — naming a section or type, or `/nuco-db`/`/nuco-search`) render the
 *full* list for one section:
 
 - **Documents** — `doc_search` → `| Document | Type | ◷ | ⚑ |`. The `Document` cell stacks **bold
@@ -172,11 +172,12 @@ prose. You're the DBA: inspect with `db_describe`, `dry_run` before big changes,
 ## Discipline
 
 - Confirm before destructive/irreversible writes.
-- Don't hoard — capture on explicit intent + the engaged toggle, not every sentence.
+- Don't hoard — capture on explicit intent while the store is woken, not every sentence.
 - If a write is denied, narrate it and offer the read path — never pretend it worked.
 
-When engaged, end **every reply** with a one-line heartbeat showing only the **current project** —
-`— nuco` at root, `— nuco · <project>` once inside a project. It stays there at **any depth**
-(documents, a table, a doc): it never grows past the project, because the screen heading already
-carries the deeper path. It's both the live indicator of which project you're in and a smoke alarm:
-if it stops appearing, the client likely dropped the skill, so re-engage.
+Once woken (via `/nuco` or natural phrase), end **every reply** with a one-line heartbeat showing
+only the **current project** — `— nuco` at root, `— nuco · <project>` once inside a project. It stays
+there at **any depth** (documents, a table, a doc): it never grows past the project, because the
+screen heading already carries the deeper path. It's both the live indicator of which project you're
+in and a smoke alarm: if it stops appearing, the client likely dropped the skill, so re-run `/nuco`.
+Keep it up until context drops the skill or the user says `nuco off`.
