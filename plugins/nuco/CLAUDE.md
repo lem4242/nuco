@@ -17,8 +17,8 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
 - Two citizens: messy markdown **documents** (append-only) and ordinary **relational tables**
   (write the SQL — don't compute over prose).
 - **Projects-as-schemas.** Each project is a Postgres schema with its own `doc` table and relational
-  tables; `project` is the override — omit for your private personal project, name a shared one to
-  share.
+  tables; `project` is **required** on every data verb — name the one you're in (ask the user if it
+  isn't established); reads may pass `all` only for an explicit cross-project search. No implicit default.
 - **Identity = verified.** WorkOS AuthKit gives the server the user's email; it maps to a Postgres
   role (`SET LOCAL ROLE`). The server supplies the author — the model never sets it. **Security =
   the Postgres grants**; always prefer the least-permission, least-destructive verb.
