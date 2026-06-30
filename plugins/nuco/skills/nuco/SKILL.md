@@ -1,16 +1,14 @@
 ---
 name: nuco
-description: Use when the nuco shared store is woken — capturing what the user points at ("remember this", "note that", "write that up"), recalling past work ("what did we decide about…", "find the memory on…"), navigating the store ("show me where I am", "switch project", "list tables"), or working with shared tables. On "what did we…" questions, search nuco BEFORE the web. Capture only on explicit intent.
+description: Use when the nuco shared store is woken — capturing ("remember this", "write that up"), recalling ("what did we decide about…", "find the memory on…"), navigating ("show me where I am", "switch project"), or working with shared tables. On "what did we…" questions search nuco BEFORE the web; capture only on explicit intent.
 ---
 
 # nuco — shared-memory operating judgment
 
-nuco is the team's shared, durable store: append-only **documents** (prose) and **tables**
-(structured data), organised into **projects**. The tools tell you how to call them — `nuco_context`
-first, `project` to target a scope, `doc_*` for prose, `db_*` for tables. This skill is how to do it
-well. The line that matters: your client's memory is private and ephemeral; nuco is shared and
-durable. Put something here when it must outlive this chat, be seen by a colleague, or be read by a
-later job — keep everything else in the client.
+The server's tool instructions cover the mechanics — `nuco_context` first, `project` to scope,
+`doc_*`/`db_*`, private by default. This skill is the judgment on top: your client's memory is private
+and ephemeral, nuco is shared and durable — put here only what must outlive this chat, be seen by a
+colleague, or be read by a later job; keep everything else in the client.
 
 ## Capturing — the user gestures, you author
 
@@ -36,17 +34,6 @@ is just version history). Append-only: when a proposal is rejected, save the nex
   lands. Search `state:"active"` first, then broaden.
 - **Cite provenance** — title · state · date; say plainly whether you're grounded in a doc or inferring.
 - **Stale data**: don't say "I don't have it" — say when it was last updated and offer to use or refresh it.
-
-## Routing — private by default, shared on purpose
-
-Omitting `project` keeps a write in your personal project (private — the safe default). Name a shared
-project for anything a colleague or job must see. The write tells you where it landed — surface that,
-and surface denials ("no write access there — here's the read path"); never pretend a denied write worked.
-
-## Numbers live in tables
-
-Totals, joins, comparisons → tables with SQL; don't reason figures out of prose. You're the DBA:
-inspect with `db_describe`, `dry_run` before big changes, add indexes if slow.
 
 ## Rendering — navigable status screens
 
@@ -92,7 +79,7 @@ tables, spelled out only in a doc's own meta line. Degrade an empty value → `�
 
 | Document | Type | ◷ | ⚑ |
 |:--|:-:|:-:|:-:|
-| **Competitor review (8 brands)** v3<br>Benchmark vs 8 demi-fine brands | note | 2 days | ✓ |
+| **Competitor review (8 brands)** v3<br>Benchmark vs 8 brands | note | 2 days | ✓ |
 
 **file views** — `cd <doc|table>`:
 
@@ -114,8 +101,8 @@ tables, spelled out only in a doc's own meta line. Degrade an empty value → `�
 
 ## Discipline
 
-- Confirm before destructive/irreversible writes; capture on explicit intent while woken, not every
-  sentence; surface denials, never fake a write.
+- Confirm before destructive/irreversible writes (`dry_run` first); capture on explicit intent while
+  woken, not every sentence; surface denials, never fake a write.
 - **Heartbeat:** once woken, end **every reply** with a one-line heartbeat showing only the current
   project — `— nuco` at root, `— nuco · <project>` inside one (at any depth; the heading carries the
   rest). It's a smoke alarm: if it stops, context dropped the skill — re-run `/nuco`. Keep it up until
