@@ -31,7 +31,10 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
 - **Tables:** `db_describe` · `db_read` · `db_upsert` · `db_update` · `db_delete` · `db_write` ·
   `db_alter` (`dry_run` is an arg on the destructive ones, not a separate verb).
 - **Admin** runs on the separate `nuco-admin` instance with its own provisioning verbs — not the
-  data verbs.
+  data verbs. **Creating a user requires a display `username`** (unique, 1–64 chars): ask the operator
+  for it — don't invent one. It's how the person appears in member lists and as a document author, and
+  it names their personal Drive folder (which is shared into their own Drive on creation). Re-running
+  `user_create` reconciles a user (backfills a missing home folder / share, updates the username).
 
 ## Guardrails
 - **Append-only docs:** `doc_write` adds the next version for the same `doc_key`; never overwrite.
