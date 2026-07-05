@@ -2,7 +2,7 @@
 
 The installable **client** plugin for **nuco2**: a `nuco` skill, the `/nuco` command, and the
 `.mcp.json` that points at the two self-hosted MCP servers — `nuco` (the data plane,
-`nuco.vivelia.co/mcp`) and `nuco-admin` (the control plane, `nuco-admin.vivelia.co/mcp`).
+`mcp.nuco.sh`) and `nuco-admin` (the control plane, `admin.nuco.sh`) — served at the host root.
 **No server code here** — the server is a self-hosted **FastMCP** service in the sibling repo
 `lem4242/nuco2-project` (`server/`), on Dokploy + WorkOS AuthKit. **Not Obot** (its containerized
 runtime forwards no user identity).

@@ -2,11 +2,11 @@
   "mcpServers": {
     "nuco": {
       "type": "https",
-      "url": "https://nuco.vivelia.co/mcp"
+      "url": "https://mcp.nuco.sh"
     },
     "nuco-admin": {
       "type": "https",
-      "url": "https://nuco-admin.vivelia.co/mcp"
+      "url": "https://admin.nuco.sh"
     }
   }
 }
