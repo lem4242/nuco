@@ -1,11 +1,11 @@
 {
-  "name": "nuco2",
+  "name": "nuco",
   "owner": {
     "name": "lem4242",
     "email": "lynton@d3r.com"
   },
   "metadata": {
-    "description": "nuco2 — the shared, queryable store substrate (documents + relational tables) on ParadeDB."
+    "description": "nuco — the shared, queryable store substrate (documents + relational tables) on ParadeDB."
   },
   "plugins": [
     {
@@ -15,7 +15,7 @@
       "source": "./plugins/nuco",
       "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB.",
       "version": "0.2.0",
-      "keywords": ["nuco", "nuco2", "paradedb", "shared-store", "mcp"]
+      "keywords": ["nuco", "paradedb", "shared-store", "mcp"]
     }
   ]
 }

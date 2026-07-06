@@ -1,14 +1,14 @@
 # nuco (plugin) — agent guide
 
-The installable **client** plugin for **nuco2**: a `nuco` skill, the `/nuco` command, and the
+The installable **client** plugin for **nuco**: a `nuco` skill, the `/nuco` command, and the
 `.mcp.json` that points at the two self-hosted MCP servers — `nuco` (the data plane,
 `mcp.nuco.sh`) and `nuco-admin` (the control plane, `admin.nuco.sh`) — served at the host root.
 **No server code here** — the server is a self-hosted **FastMCP** service in the sibling repo
-`lem4242/nuco2-project` (`server/`), on Dokploy + WorkOS AuthKit. **Not Obot** (its containerized
+`lem4242/nuco-core` (`server/`), on Dokploy + WorkOS AuthKit. **Not Obot** (its containerized
 runtime forwards no user identity).
 
 **Design rationale + authoritative scope live in the sibling repo, not here:**
-`lem4242/nuco2-project` — read its `DEPLOY.md`, `plans/HANDOFF.md`, `docs/SURFACE.md` (the canonical
+`lem4242/nuco-core` — read its `DEPLOY.md`, `plans/HANDOFF.md`, `docs/SURFACE.md` (the canonical
 model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the authoritative DDL.
 
 ## What the store is (for the skill's sake)
@@ -23,7 +23,7 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
   role (`SET LOCAL ROLE`). The server supplies the author — the model never sets it. **Security =
   the Postgres grants**; always prefer the least-permission, least-destructive verb.
 
-## The surface the skill drives (canonical: `nuco2-project/docs/SURFACE.md`)
+## The surface the skill drives (canonical: `nuco-core/docs/SURFACE.md`)
 - **Orient first:** `nuco_context` — identity, the projects you can read/write, and their tables/keys.
 - **Documents:** `doc_search` · `doc_read` · `doc_history` · `doc_write` (states:
   saved | active | archived; a **required** free-text `type` axis — classify every save, e.g. note | memory |
@@ -43,5 +43,5 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
   path; don't crash or pretend it worked.
 - **Keep the client lean:** skill + command + `.mcp.json` only — no server code in this repo.
 - **Don't reintroduce deferred complexity** (RLS, embeddings, media) — design-on-record in
-  `nuco2-project`, not built. The agentic **work fabric / jobs** is being built *there* (Phase 4a),
+  `nuco-core`, not built. The agentic **work fabric / jobs** is being built *there* (Phase 4a),
   not part of this client surface.

@@ -1,4 +1,4 @@
-# nuco2 — Claude plugin marketplace
+# nuco — Claude plugin marketplace
 
 The marketplace for **nuco** — a shared, queryable store (documents + relational tables) on
 ParadeDB, served by a self-hosted MCP server. *Git for shared data and documents*, not a personal
@@ -40,7 +40,7 @@ all you need. Claude runs the OAuth flow in your browser and stores the token se
 ### Organization (Claude app / Cowork)
 
 1. **Organization settings → Plugins**
-2. **Add plugin → GitHub**, enter `lem4242/nuco2`.
+2. **Add plugin → GitHub**, enter `lem4242/nuco`.
 3. An initial sync runs; optionally enable **⋯ → "Sync automatically"**.
 
 Members then open **Customize → Plugins** and install **nuco** — no per-user GitHub login.
@@ -50,8 +50,8 @@ relative-path sources, which this repo does.)
 ### Claude Code (individuals)
 
 ```
-/plugin marketplace add lem4242/nuco2
-/plugin install nuco@nuco2
+/plugin marketplace add lem4242/nuco
+/plugin install nuco@nuco
 ```
 
 Or browse with `/plugin`. (Private-repo note: Claude Code clones locally per machine, so each
@@ -60,8 +60,8 @@ user needs their own git read access.)
 ### Try locally before pushing
 
 ```
-/plugin marketplace add /path/to/nuco2
-/plugin install nuco@nuco2
+/plugin marketplace add /path/to/nuco
+/plugin install nuco@nuco
 ```
 
 ## Use it
