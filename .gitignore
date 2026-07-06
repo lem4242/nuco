@@ -1,0 +1,4 @@
+.DS_Store
+node_modules/
+# per-stream worktrees for coupled cross-repo work (opened from nuco-core via `bin/stream link`)
+.claude/worktrees/
