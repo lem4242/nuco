@@ -1,0 +1,3 @@
+# Everything is owned by the repo admin, so agent (App) PRs require lem4242 review
+# before merge. Paired with the protect-main ruleset (require_code_owner_review).
+* @lem4242
