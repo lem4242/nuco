@@ -30,6 +30,12 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
   decision; a save appends a version, never overwrites).
 - **Tables:** `db_describe` · `db_read` · `db_upsert` · `db_update` · `db_delete` · `db_write` ·
   `db_alter` (`dry_run` is an arg on the destructive ones, not a separate verb).
+- **Files:** `file_search` · `file_list` — Drive-backed assets; `file_search` finds them (the
+  `/nuco` search spans docs + files), `file_list` is the Assets section view (each name links to
+  its `webViewLink`).
+- **Jobs:** `job_request` · `job_search` · `job_read` — offload async work to a cold worker
+  (submit it self-contained; may request a `model`); track with `job_search` / `job_read` and cite
+  a finished job's output like any source.
 - **Admin** runs on the separate `nuco-admin` instance with its own provisioning verbs — not the
   data verbs. **Creating a user requires a display `username`** (unique, 1–64 chars): ask the operator
   for it — don't invent one. It's how the person appears in member lists and as a document author, and
@@ -43,5 +49,4 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
   path; don't crash or pretend it worked.
 - **Keep the client lean:** skill + command + `.mcp.json` only — no server code in this repo.
 - **Don't reintroduce deferred complexity** (RLS, embeddings, media) — design-on-record in
-  `nuco-core`, not built. The agentic **work fabric / jobs** is being built *there* (Phase 4a),
-  not part of this client surface.
+  `nuco-core`, not built.
