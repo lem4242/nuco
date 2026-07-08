@@ -22,6 +22,12 @@ notebook.
 │       ├── .claude-plugin/
 │       │   └── plugin.json           # Plugin manifest
 │       ├── .mcp.json                 # Self-hosted MCP server URLs (per-user OAuth)
+│       ├── CLAUDE.md                 # Agent guide for the nuco plugin
+│       ├── commands/
+│       │   ├── nuco.md
+│       │   ├── nuco-project.md
+│       │   ├── nuco-search.md
+│       │   └── nuco-db.md
 │       └── skills/
 │           └── nuco/
 │               └── SKILL.md          # The store operating skill (/nuco)
@@ -70,4 +76,9 @@ user needs their own git read access.)
   reply; it stays woken until context drops it (the heartbeat stops) or you run `/nuco off`.
 - **Skill:** "remember this", "save to nuco", "find in nuco", "what did we decide about…", or any
   nuco table work triggers the `nuco` skill.
-- **MCP tools:** once connected (and authorized), the Postgres tools appear — check with `/mcp`.
+- **Commands:**
+  - `/nuco` — wake the store and show the current project status.
+  - `/nuco-project` — switch to a project and render its home, or list projects.
+  - `/nuco-search` — search the nuco store (docs + files) and render the results.
+  - `/nuco-db` — work with relational tables in the current project.
+- **MCP tools:** once connected (and authorized), the nuco tools appear — check with `/mcp`.
