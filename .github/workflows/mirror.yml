@@ -1,0 +1,45 @@
+name: Mirror to public
+
+# Master lives in the PRIVATE repo (lem4242/nuco-private).
+# This job force-pushes main + tags to the PUBLIC mirror (lem4242/nuco),
+# which is read-only: never commit there directly.
+#
+# Auth: a deploy key. The PUBLIC repo holds the public key (with write access);
+# the PRIVATE repo holds the private key as the MIRROR_DEPLOY_KEY secret.
+# A deploy key (SSH) — not a PAT — is used so pushes that touch
+# .github/workflows/ aren't rejected for lacking the `workflow` token scope.
+
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-to-public
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    # Guard: this file is itself mirrored into the public repo, so make sure it
+    # only ever runs from the private master.
+    if: github.repository == 'lem4242/nuco-private'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure deploy key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.MIRROR_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
+
+      - name: Push main + tags to public mirror
+        env:
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes
+        run: |
+          git push --force git@github.com:lem4242/nuco.git HEAD:refs/heads/main
+          git push --force --tags git@github.com:lem4242/nuco.git

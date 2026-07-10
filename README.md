@@ -7,6 +7,23 @@ notebook.
 > Design rationale, decisions, schema, and phase plans live in a **separate** background repo —
 > deliberately kept out of this distribution marketplace.
 
+## Repository layout (master / mirror)
+
+This marketplace is published from **two repos with identical content**, to serve both
+distribution channels:
+
+| Repo | Visibility | Role | Serves |
+| --- | --- | --- | --- |
+| [`lem4242/nuco-private`](https://github.com/lem4242/nuco-private) | private | **master** — all commits, PRs, issues | Organizations (Claude app / Cowork) |
+| [`lem4242/nuco`](https://github.com/lem4242/nuco) | public | **mirror** — read-only, auto-generated | Claude Code (individuals) |
+
+Do all work in the **private master**. On every push to `main` (and any tag), a GitHub Action
+(`.github/workflows/mirror.yml`) force-pushes to the public mirror. Because plugin `source`s are
+relative paths, the same content is valid in both repos — nothing needs to differ.
+
+> **Never commit to the public `nuco` directly** — it is overwritten by the mirror on the next
+> push. Feature branches stay private; only `main` and tags are mirrored.
+
 ## What's here
 
 | Plugin | What it is | Where |
@@ -46,7 +63,7 @@ all you need. Claude runs the OAuth flow in your browser and stores the token se
 ### Organization (Claude app / Cowork)
 
 1. **Organization settings → Plugins**
-2. **Add plugin → GitHub**, enter `lem4242/nuco`.
+2. **Add plugin → GitHub**, enter `lem4242/nuco-private` (the private master).
 3. An initial sync runs; optionally enable **⋯ → "Sync automatically"**.
 
 Members then open **Customize → Plugins** and install **nuco** — no per-user GitHub login.
@@ -60,8 +77,8 @@ relative-path sources, which this repo does.)
 /plugin install nuco@nuco
 ```
 
-Or browse with `/plugin`. (Private-repo note: Claude Code clones locally per machine, so each
-user needs their own git read access.)
+Or browse with `/plugin`. This uses the **public mirror**, so there's no git auth to set up —
+Claude Code clones it locally per machine with no credentials needed.
 
 ### Try locally before pushing
 
