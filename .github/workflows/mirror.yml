@@ -1,11 +1,10 @@
 name: Mirror to public
 
-# Master lives in the PRIVATE repo (lem4242/nuco-private).
-# This job force-pushes main + tags to the PUBLIC mirror (lem4242/nuco),
-# which is read-only: never commit there directly.
+# The private master force-pushes main + tags to the PUBLIC mirror
+# (lem4242/nuco), which is read-only: never commit there directly.
 #
-# Auth: a deploy key. The PUBLIC repo holds the public key (with write access);
-# the PRIVATE repo holds the private key as the MIRROR_DEPLOY_KEY secret.
+# Auth: a deploy key. The public repo holds the public key (with write access);
+# the master holds the private key as the MIRROR_DEPLOY_KEY secret.
 # A deploy key (SSH) — not a PAT — is used so pushes that touch
 # .github/workflows/ aren't rejected for lacking the `workflow` token scope.
 
@@ -21,14 +20,25 @@ concurrency:
 
 jobs:
   mirror:
-    # Guard: this file is itself mirrored into the public repo, so make sure it
-    # only ever runs from the private master.
-    if: github.repository == 'lem4242/nuco-private'
+    # Guard: this file is itself mirrored into the public copy, so gate on the
+    # repo being private — the job is inert wherever it lands publicly. (Named
+    # nothing private, so the guard leaks nothing when mirrored.)
+    if: ${{ github.event.repository.private == true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # Fail the mirror if any tracked file names the private master — it would
+      # be published verbatim to the public repo. Reference the public repo or
+      # nothing. (The pattern below uses [-] so this step never matches itself.)
+      - name: Guard — no private-master reference leaks into the mirror
+        run: |
+          if git grep -nE 'lem4242/nuco[-]private' -- .; then
+            echo "::error::A reference to the private master is present in tracked content and would be published to the public mirror. Reference the public repo (lem4242/nuco) or nothing."
+            exit 1
+          fi
 
       - name: Configure deploy key
         run: |
