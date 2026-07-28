@@ -103,6 +103,15 @@ tables, spelled out only in a doc's own meta line. Degrade an empty value → `�
   relative, `status` the plain word, rich cells fall back to raw text. Cap 500 rows; show the count and
   whether it `truncated`.
 
+**Images** — don't link-only; **show** them. `file_image(mode=view, size=N)` drops the picture
+straight into the chat — the one exception to "always markdown": it's neither markdown nor a widget,
+just the image. Defaults: a single image `size 512`, a 2×2/composite `size 768`. Cost ≈ (w×h)/750
+tokens **re-billed every turn it stays in context** → prefer one **composite** over N tiles, keep
+sizes modest, don't re-show once resolved. Separate `mode=view` images **stack one per line** — for
+side-by-side, show a single composite image. Put markdown `[View]` links to the full-res originals
+**below** the picture(s). (Inline markdown `![]()` and base64-in-`show_widget` don't render for the
+user; don't use them.) Generating/editing/choosing images → the **nuco-images** skill.
+
 ## Usage notes that bite
 
 - `where` takes `{"col": v}` (eq), `{"col": [a,b]}` (in), or `{"col": {"op":"gte","value":100}}` (the
