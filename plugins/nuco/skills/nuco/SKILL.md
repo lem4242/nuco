@@ -110,7 +110,10 @@ tokens **re-billed every turn it stays in context** → prefer one **composite**
 sizes modest, don't re-show once resolved. Separate `mode=view` images **stack one per line** — for
 side-by-side, show a single composite image. Put markdown `[View]` links to the full-res originals
 **below** the picture(s). (Inline markdown `![]()` and base64-in-`show_widget` don't render for the
-user; don't use them.) Generating/editing/choosing images → the **nuco-images** skill.
+user; don't use them.) Generating/editing/choosing/upscaling images → the shared **images**
+RECIPE, not a skill: it lives in the `shared` project and surfaces in `nuco_context`'s recipe
+list (or via the `nuco-recipe` skill). It targets content-mcp's `content_*` verbs — the core
+`image_*` verbs are retired.
 
 ## Usage notes that bite
 
