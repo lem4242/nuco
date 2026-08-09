@@ -32,8 +32,9 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
   `db_alter` (`dry_run` is an arg on the destructive ones, not a separate verb).
 - **Files:** `file_search` · `file_list` · `file_image` — Drive-backed assets; `file_search` finds
   them (the `/nuco` search spans docs + files), `file_list` is the Assets section view (each name
-  links to its `webViewLink`), and `file_image(mode=view, size=N)` **shows** an image in the chat
-  rather than linking to it (the skill's Rendering section has the sizing rules).
+  links to its `webViewLink`; drill into a subfolder via `path`/`folder_id`, page big listings by
+  passing `next_cursor` back — complete when absent), and `file_image(mode=view, size=N)` **shows**
+  an image in the chat rather than linking to it (the skill's Rendering section has the sizing rules).
 - **Jobs:** `job_request` · `job_search` · `job_read` — offload async work to a cold worker
   (submit it self-contained; may request a `model`); track with `job_search` / `job_read` and cite
   a finished job's output like any source.

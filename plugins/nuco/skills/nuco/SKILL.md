@@ -89,7 +89,10 @@ tables, spelled out only in a doc's own meta line. Degrade an empty value → `�
   A type-scoped list (`cd docs/<type>`) drops the Type column. **Search** renders the same, filtered.
 - **Tables** (`db_describe`) → `| Table | Rows |`; names plain; hide `doc` / `nuco_audit`.
 - **Assets** (`file_list`) → `| Asset | ⤓ | ◷ |`; name links to its `webViewLink`; sizes compact
-  (`2.4Mb` · `12Kb` · `340b`); empty → _No assets yet_.
+  (`2.4Mb` · `12Kb` · `340b`); empty → _No assets yet_. Big projects page: `next_cursor` in the
+  response means more assets — render the page, note "N shown — more available", and pass the
+  cursor back to continue when asked. Drill into a subfolder with `path` (e.g. `assets/gallery`)
+  or `folder_id`. The listing is complete when `next_cursor` is absent.
 
 | Document | Type | ◷ | ⚑ |
 |:--|:-:|:-:|:-:|
