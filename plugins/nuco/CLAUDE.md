@@ -12,8 +12,9 @@ runtime forwards no user identity).
 model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the authoritative DDL.
 
 ## What the store is (for the skill's sake)
-- **ParadeDB** (Postgres). Search is **BM25** (`pg_search`); the model reaches it through the
-  `doc_search` verb, not raw SQL. Semantic/vector search is not enabled yet.
+- **ParadeDB** (Postgres). Keyword search is **BM25** (`pg_search`); the model reaches it through the
+  `doc_search` verb, not raw SQL. **Semantic/vector search is live** (`rag_search`, fused with BM25), and
+  so is perceptual-hash duplicate detection over images (`image_dupes`).
 - Two citizens: messy markdown **documents** (append-only) and ordinary **relational tables**
   (write the SQL — don't compute over prose).
 - **Projects-as-schemas.** Each project is a Postgres schema with its own `doc` table and relational
@@ -35,6 +36,13 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
   links to its `webViewLink`; drill into a subfolder via `path`/`folder_id`, page big listings by
   passing `next_cursor` back — complete when absent), and `file_image(mode=view, size=N)` **shows**
   an image in the chat rather than linking to it (the skill's Rendering section has the sizing rules).
+- **Search beyond keywords:** `rag_search` — meaning (vector ANN fused with BM25, across docs, files and
+  image content; `space` = `text` | `images` | `all`). `image_dupes` — **identity**: "is this the same
+  photograph?", by Hamming distance over a 64-bit perceptual hash. Reach for `image_dupes`, not
+  `rag_search`, when the question is whether two images ARE the same shot (cross-posted, re-encoded,
+  re-uploaded); `rag_search` ranks by resemblance and cannot assert identity. Pass exactly one of
+  `file_id` or `phash`; **≤4 bits = the same photo, ≥13 = unrelated**, and every row carries `distance`.
+  A crop or rotation will NOT match (a 90° rotation measures 32 bits).
 - **Jobs:** `job_request` · `job_search` · `job_read` — offload async work to a cold worker
   (submit it self-contained; may request a `model`); track with `job_search` / `job_read` and cite
   a finished job's output like any source.
