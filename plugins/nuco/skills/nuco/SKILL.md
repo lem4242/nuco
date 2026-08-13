@@ -118,6 +118,20 @@ RECIPE, not a skill: it lives in the `shared` project and surfaces in `nuco_cont
 list (or via the `nuco-recipe` skill). It targets content-mcp's `content_*` verbs — the core
 `image_*` verbs are retired.
 
+**File sharing** — `file_share_url(file_id, project, ttl_seconds=86400)` mints an expiring signed URL
+to fetch a private file backed by a revision-keyed R2 cache. The URL is a bearer capability: anyone
+holding it can fetch until expiry, but **it cannot be revoked early**. To kill it early, trash the
+file — the sweeper's reap pass then drops the cached bytes (within a sweep cycle, not instantly).
+
+- Default lifetime is 24 hours; `ttl_seconds` clamps to 1–604800 (7 days, the SigV4 ceiling).
+- This is the only share surface: there is no share-link list, no revoke verb, and no anonymous route.
+- Requires read membership of the project; Google-native files (Docs/Sheets/Slides) are refused (`not_supported`).
+- On a cold call the server streams the file into the cache first (`cached: false` in the response).
+  Files over the inline cap are queued (`status: "populating"`, retry after ~30s; the response has no
+  `url` field). Very large files over the async ceiling are refused.
+- **Do NOT paste minted URLs into durable docs or logs** — they are bearer credentials with the
+  stated lifetime.
+
 ## Usage notes that bite
 
 - `where` takes `{"col": v}` (eq), `{"col": [a,b]}` (in), or `{"col": {"op":"gte","value":100}}` (the
