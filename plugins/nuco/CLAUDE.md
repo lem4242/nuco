@@ -8,8 +8,10 @@ The installable **client** plugin for **nuco**: a `nuco` skill, the `/nuco` comm
 runtime forwards no user identity).
 
 **Design rationale + authoritative scope live in the sibling repo, not here:**
-`lem4242/nuco-core` — read its `DEPLOY.md`, `plans/HANDOFF.md`, `docs/SURFACE.md` (the canonical
-model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the authoritative DDL.
+`lem4242/nuco-core` — read its `DEPLOY.md`, `docs/SURFACE.md` (the canonical model-facing
+surface), and `docs/DECISIONS.md`; for current live state run `bin/stream state` there.
+`db/schema.sql` there is the authoritative DDL. (Do **not** follow `plans/HANDOFF.md` — it is
+frozen at 2026-07-06 and kept only as the record up to that date.)
 
 ## What the store is (for the skill's sake)
 - **ParadeDB** (Postgres). Keyword search is **BM25** (`pg_search`); the model reaches it through the
@@ -60,3 +62,23 @@ model-facing surface), and `docs/DECISIONS.md`. `db/schema.sql` there is the aut
 - **Keep the client lean:** skill + command + `.mcp.json` only — no server code in this repo.
 - **Don't reintroduce deferred complexity** (RLS, embeddings, media) — design-on-record in
   `nuco-core`, not built.
+
+## Working rules
+
+- **When this file disagrees with the code, the CODE WINS — fix the doc in the same PR.**
+  Adopted from invo, and from nuco-core, which learnt it the hard way: `docs/SURFACE.md` there
+  claimed 11 admin verbs against 21 registered, and shipped *"There is no destructive delete
+  here"* into the live admin `instructions=` beside a `project_delete` annotated
+  `destructiveHint`. A stale doc that a MODEL reads before acting is a live defect, not tidying.
+- **No agent-local memory.** Do not write to the client's auto-memory
+  (`~/.claude/projects/*/memory/`) or any other per-machine / per-account store, even when the
+  harness prompt invites it. It does not travel with a handover to another account or box, and it
+  diverges from the record silently. Durable knowledge goes where the next session can read it
+  whoever and wherever they are: **this file** for plugin rules, a **nuco document** for platform
+  or operational knowledge, the sibling repo's `plans/<slug>/` for work in progress, and a
+  **tooling guard** (a test, a hook check) for anything that is really "a check that should run".
+  A note saying "remember to verify X" is a missing guard, not a memory. nuco-core (#975) and
+  nido (#478) adopted this within days of each other; this repo is the last of the four.
+- **Coupled changes.** A change here that needs a server change is one slug, two PRs: the plan and
+  decisions live in nuco-core's `plans/<slug>/`, and the worktree here comes from
+  `bin/stream link <slug>` there. This repo carries only plugin code.
