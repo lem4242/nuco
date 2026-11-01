@@ -6,7 +6,7 @@ root (or in a `.claude/worktrees/<slug>/`) auto-loads *something* and is sent to
 
 Three things every session needs before reading further:
 
-- **This is `lem4242/nuco-private`, the master.** `lem4242/nuco` is its public MIRROR,
+- **This is the private master.** `lem4242/nuco` is its public MIRROR,
   force-pushed from here for the marketplace — it has no ruleset by design; do not "fix" that.
 - **When a doc disagrees with the code, the code wins — fix the doc in the same PR.** And
   **no agent-local memory**: durable knowledge goes in the repo, a nuco document, or a tooling
