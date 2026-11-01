@@ -6,9 +6,10 @@ description: Use when the nuco shared store is woken — capturing ("remember th
 # nuco — shared-memory operating judgment
 
 The server's tool instructions cover the mechanics — `nuco_context` first, then a required `project`
-on every data verb (`doc_*`/`db_*`). This skill is the judgment on top: your client's memory is private
-and ephemeral, nuco is shared and durable — put here only what must outlive this chat, be seen by a
-colleague, or be read by a later job; keep everything else in the client.
+on every data verb (`doc_*`/`db_*`). This skill is the judgment on top: nuco is shared and durable —
+put here only what must outlive this chat, be seen by a colleague, or be read by a later job. The
+person's own facts, preferences and decisions are personal memory, not project documents: the
+`nuco-memory` skill covers them (`memory_read`, `memory_add`).
 
 **Always act in a known project** — bind every read and write to the project you're in (the cursor;
 see Rendering). If none is established, **ask the user which project**; never assume. No
