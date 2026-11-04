@@ -76,6 +76,6 @@ copy of this marketplace instead — see the internal onboarding runbook.)
 - **Commands:**
   - `/nuco` — wake the store and show the current project status.
   - `/nuco-project` — switch to a project and render its home, or list projects.
-  - `/nuco-search` — search the nuco store (docs + files) and render the results.
+  - `/nuco-search` — search documents, files, images and personal memory with `search`, and render the results.
   - `/nuco-db` — work with relational tables in the current project.
 - **MCP tools:** once connected (and authorized), the nuco tools appear — check with `/mcp`.

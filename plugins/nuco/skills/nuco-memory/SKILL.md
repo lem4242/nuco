@@ -12,14 +12,26 @@ enabled there — say so once and carry on without it.
 
 ## Read at the start
 
-Call `memory_read` once at the start of a session (or `memory_read(about: "<subject>")` when the work is
-plainly about one person, project or place). It returns open items first, then active rows by subject,
-bounded; `truncated: true` means there is more — narrow with `about`. Use what it says; don't recite it.
+Call `memory_read` once at the start of a session. A plain read returns the generated profile
+body and active open items. `profile.written_at` says when that profile version was written;
+`profile.pending_facts` counts qualifying current facts changed since that version and not yet
+reflected in it. When the count is nonzero, `profile.freshness` explains the lag and points to a
+query read for those facts now. If no profile exists yet but qualifying facts are pending,
+`written_at` is null and the freshness message says it has not yet been written. Do not treat
+the profile as fully current while facts are pending.
+
+For work about a person, project or place use
+`memory_read(query="<subject>")`: it matches text, source quotes, subject names and aliases,
+returning open items first, then rows grouped by subject, with a profile reference rather than
+its body. Subject groups and subject-bearing open items include `subject_kind` (person,
+project, place, topic, area or asset); use that supplied kind rather than inferring it from a name.
+Rows without a subject have no subject kind. Responses are bounded; `omitted > 0` means rows were left out — narrow `query`.
+Use what it says; don't recite it.
 
 ## Recall
 
-- "What did I say about X?" → `rag_search` with `source: "memory"` (no `project` needed) when it is in
-  your tool list, else `memory_read(about: "X")`. Cite the row's sentence, not your paraphrase.
+- "What did I say about X?" → `search` with `query: "X", kind: "memory"` (no `project` needed) when it is in
+  your tool list, else `memory_read(query="X")`. Cite the row's sentence, not your paraphrase.
 - "What did I say before / used to think?" → `memory_read` with `history: true` (superseded, retired,
   stale and parked rows with their interval) or `at: "<ISO time>"` (what held then).
 

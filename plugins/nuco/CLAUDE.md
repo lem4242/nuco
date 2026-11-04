@@ -8,49 +8,57 @@ The installable **client** plugin for **nuco**: a `nuco` skill, the `/nuco` comm
 runtime forwards no user identity).
 
 **Design rationale + authoritative scope live in the sibling repo, not here:**
-`lem4242/nuco-core` — read its `DEPLOY.md`, `docs/SURFACE.md` (the canonical model-facing
-surface), and `docs/DECISIONS.md`; for current live state run `bin/stream state` there.
+`lem4242/nuco-core` — read its `DEPLOY.md`, `docs/INTERFACE.md` (the generated verb map),
+`docs/CATALOGUE.md` (subsystem behaviour), `docs/SURFACE.md` (the model-facing copy), and
+`docs/DECISIONS.md`; for current live state run `bin/stream state` there.
 `db/schema.sql` there is the authoritative DDL. (Do **not** follow `plans/HANDOFF.md` — it is
 frozen at 2026-07-06 and kept only as the record up to that date.)
 
 ## What the store is (for the skill's sake)
-- **ParadeDB** (Postgres). Keyword search is **BM25** (`pg_search`); the model reaches it through the
-  `doc_search` verb, not raw SQL. **Semantic/vector search is live** (`rag_search`, fused with BM25), and
-  so is perceptual-hash duplicate detection over images (`image_dupes`).
+- **ParadeDB** (Postgres). `search` fuses BM25 keyword search with semantic/vector search
+  across documents, files, images and the caller's own memory.
 - Two citizens: messy markdown **documents** (append-only) and ordinary **relational tables**
   (write the SQL — don't compute over prose).
 - **Projects-as-schemas.** Each project is a Postgres schema with its own `doc` table and relational
-  tables; `project` is **required** on every data verb — name the one you're in (ask the user if it
-  isn't established); reads may pass `all` only for an explicit cross-project search. No implicit default.
+  tables; `project` is **required** on project-scoped data verbs — name the one you're in (ask the user if it
+  isn't established); reads may pass `all` only for an explicit cross-project search. No implicit default. Personal memory verbs take no project; `search(kind="memory")` may omit it.
 - **Identity = verified.** WorkOS AuthKit gives the server the user's email; it maps to a Postgres
   role (`SET LOCAL ROLE`). The server supplies the author — the model never sets it. **Security =
   the Postgres grants**; always prefer the least-permission, least-destructive verb.
 
-## The surface the skill drives (canonical: `nuco-core/docs/SURFACE.md`)
+## The surface the skill drives (canonical: `nuco-core/docs/INTERFACE.md`)
 - **Orient first:** `nuco_context` — identity, the projects you can read/write, and their tables/keys.
-- **Documents:** `doc_search` · `doc_read` · `doc_history` · `doc_write` (states:
-  saved | active | archived; a **required** free-text `type` axis — classify every save, e.g. note | memory |
-  decision; a save appends a version, never overwrites).
-- **Tables:** `db_describe` · `db_read` · `db_upsert` · `db_update` · `db_delete` · `db_write` ·
-  `db_alter` (`dry_run` is an arg on the destructive ones, not a separate verb).
-- **Files:** `file_search` · `file_list` · `file_image` — Drive-backed assets; `file_search` finds
-  them (the `/nuco` search spans docs + files), `file_list` is the Assets section view (each name
-  links to its `webViewLink`; drill into a subfolder via `path`/`folder_id`, page big listings by
-  passing `next_cursor` back — complete when absent), and `file_image(mode=view, size=N)` **shows**
-  an image in the chat rather than linking to it (the skill's Rendering section has the sizing rules).
-- **Search beyond keywords:** `rag_search` — meaning (vector ANN fused with BM25, across docs, files and
-  image content; `space` = `text` | `images` | `all`). `image_dupes` — **identity**: "is this the same
-  photograph?", by Hamming distance over a 64-bit perceptual hash. Reach for `image_dupes`, not
-  `rag_search`, when the question is whether two images ARE the same shot (cross-posted, re-encoded,
-  re-uploaded); `rag_search` ranks by resemblance and cannot assert identity. Pass exactly one of
-  `file_id` or `phash`; **≤4 bits = the same photo, ≥13 = unrelated**, and every row carries `distance`.
-  A crop or rotation will NOT match (a 90° rotation measures 32 bits).
-- **Jobs:** `job_request` · `job_search` · `job_read` — offload async work to a cold worker
-  (submit it self-contained; may request a `model`); track with `job_search` / `job_read` and cite
-  a finished job's output like any source.
+  Both root and project context report deployment `capabilities`, including `public_serving`.
+- **Documents:** `doc_list` · `doc_read` · `doc_history` · `doc_write` (states:
+  draft | active | archived; default active; a free-text `type` axis, default note for a new doc;
+  a save appends a version, never overwrites).
+- **Tables:** `db_describe(project, table)` · `db_read` · `db_upsert` · `db_write`.
+  `db_write(project, sql, dry_run=True)` previews row changes and DDL; use SQL WHERE clauses for
+  targeted mutations. `nuco_context(project=…)` lists the project's tables.
+- **Files:** `file_list` · `file_read` · `file_write` · `file_move` · `file_delete` · `file_url`.
+  `file_list` returns names and paths; drill into folders via `path`, and pass a returned
+  `next_cursor` as `cursor` with the same project and no path. `file_read` accepts exactly one
+  of `file_id` or `path`; for images, `size` controls the longest edge and the picture appears in chat.
+  `file_url` returns a public URL when public serving is enabled and the file is under `public/`,
+  or an expiring signed URL for a private file. A file under `public/` has no public URL when
+  serving is off; it does not fall back to a private signed link. `file_write` creates or updates
+  a file; a write under `public/` has a URL only when `capabilities.public_serving` is true.
+  While publishing, `file_write`, `file_move` and `file_url` return `publishing_hint`: the URL
+  normally serves within seconds; check `file_url` for `public: true` before treating it as ready.
+- **Search:** `search(project, query, kind=None, limit=10)` — meaning fused with keywords.
+  `kind` selects doc | file | image | memory; omit it for all kinds. For document type/state
+  filters use `doc_list`, then inspect matching documents with `doc_read`.
+- **Memory:** `memory_read(query=None, history=False, at=None)` · `memory_add` — personal,
+  identity-scoped rows; a plain read returns the generated profile body, its `written_at` and
+  `pending_facts` freshness fields, and open items. Nonzero pending facts prompt a query read,
+  including before a profile exists. Subject groups and subject-bearing open items include
+  `subject_kind`; see the `nuco-memory` skill for the output contract.
+- **Jobs:** `job_request` · `job_list` · `job_read` · `job_cancel` — offload async work to a cold
+  worker (submit self-contained `project`, `title`, `instructions`, optional `payload` and
+  `run_after`); track with `job_list` / `job_read` and cite a finished job's output like any source.
 - **Admin** runs on the separate `nuco-admin` instance with its own provisioning verbs — not the
-  data verbs. **Creating a user requires a display `username`** (unique, 1–64 chars): ask the operator
-  for it — don't invent one. It's how the person appears in member lists and as a document author, and
+  data verbs. **Creating a user requires `email`, `username`, and `phone`**. The display username is
+  unique, 1–64 chars: ask the operator for it — don't invent one. It's how the person appears in member lists and as a document author, and
   it names their personal Drive folder (which is shared into their own Drive on creation). The username
   is **immutable** once set — there is no self-service change (users can't rename themselves); only an
   admin re-running `user_create` can correct it, which also reconciles a missing home folder / share.
@@ -60,8 +68,8 @@ frozen at 2026-07-06 and kept only as the record up to that date.)
 - **Narrate denials:** a refused write surfaces `permission denied` — say so and offer the read
   path; don't crash or pretend it worked.
 - **Keep the client lean:** skill + command + `.mcp.json` only — no server code in this repo.
-- **Don't reintroduce deferred complexity** (RLS, embeddings, media) — design-on-record in
-  `nuco-core`, not built.
+- **Keep server design in nuco-core:** follow its current generated interface and catalogue;
+  do not add server implementations to the plugin.
 
 ## Working rules
 
