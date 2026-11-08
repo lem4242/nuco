@@ -43,9 +43,9 @@ the tables. `run_after` only delays that one job. Reserve inline execution for s
 interactive runs where the user wants to watch.
 
 **Recurring monitoring uses nuco schedules.** Inspect `schedule_list(project=…)` first to avoid
-duplicates, then create with `schedule_write(project=…, title=…, instructions=…, every=…)`,
-pointing its self-contained instructions at the recipe and targets. `every` takes a duration
-such as `1d`, or a five-field cron plus IANA time zone for a fixed day/time.
+duplicates, then create with `schedule_write(project=…, title=…, instructions=…, interval=…)`,
+pointing its self-contained instructions at the recipe and targets. `interval` takes a duration
+such as `1d`; for a fixed day/time pass `cron` (five fields) with `timezone` (IANA) instead.
 Use `schedule_write(schedule_id=…, …)` to update, pause (`active=False`) or resume (`active=True`),
 and `schedule_delete(schedule_id=…)` to remove where authorized. Surface permission denials.
 The recipe remains the single source of truth for each run's methodology.

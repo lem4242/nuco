@@ -16,8 +16,8 @@ is unavailable); cite the row's sentence. For earlier views use `history` or `at
 In coding sessions, write only on explicit intent ("remember that"). Codebase learnings and
 ideas go in the repository. In chat, follow the server's standing capture instructions. Never
 record your own inference or suggestion as the person's fact or decision. Something floated
-but unchosen is an `idea`; unresolved is `open`. A correction replaces the row you read rather
-than adding a duplicate. Accept a decision downgraded to open; ask the person if it matters.
+but unchosen is an `idea`; unresolved is `open`. `memory_add` needs `kind` (`fact`, `decision`, `open` or `idea`). A correction passes the row's
+`memory_id` as `replaces` rather than adding a duplicate. Accept a decision downgraded to open; ask the person if it matters.
 
 Don't write client auto-memory. In Codex, disable `memories.generate_memories` and
 `memories.use_memories`; Claude Code's auto-memory stays off. Account memory in Claude.ai or
