@@ -5,7 +5,6 @@ argument-hint: "[name]"
 
 The user invoked nuco project with argument: `$ARGUMENTS`
 
-Use the **nuco** skill (load it if it isn't already). No argument → render the **project list**
+Use the **nuco** and **nuco-render** skills (load them if needed). No argument → render the **project list**
 (the root grid, from `nuco_context`); a name → move the cursor into that project and render its
-**project home**. Render per the skill's **Rendering** spec. Wake the breadcrumb heartbeat exactly
-as `/nuco` does. Markdown, never a widget.
+**project home**. Render per the **nuco-render** screen rules. Wake the breadcrumb heartbeat per **nuco-render**. Markdown, never a widget.

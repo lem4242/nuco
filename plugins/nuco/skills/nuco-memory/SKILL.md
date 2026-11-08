@@ -1,62 +1,24 @@
 ---
 name: nuco-memory
-description: Use at the start of a session with nuco connected, and whenever the person says "remember …", states a fact, preference or decision about themselves, their people, projects or places, or asks "what did I say about …" / "what do I prefer …". Personal memory lives in nuco (memory_read, memory_add), scoped to the person's own identity; in a coding session read it at the start and write only on explicit intent.
+description: Use at session start with nuco connected and for personal recall or remembering facts, preferences and decisions. In coding sessions, read at the start and write only on explicit intent.
 ---
 
-# nuco-memory — the person's own memory, kept in nuco
+# Personal memory
 
-nuco holds the person's personal memory as one-sentence rows (`fact`, `decision`, `open`, `idea`),
-scoped by their verified identity: no `project` argument, and no one else can read them. The verbs exist
-only where the deployment has `NUCO_MEMORY` on; if `memory_read` is not in your tool list, memory is not
-enabled there — say so once and carry on without it.
+If `memory_read` is available, read once at session start, including coding sessions. Use the
+profile without reciting it. When `pending_facts` is nonzero, query relevant subjects before
+relying on the profile, even if no profile has been written yet. Use supplied `subject_kind`,
+not a guess from the name.
 
-## Read at the start
+For "what did I say about X?", search with `kind="memory"` (or `memory_read(query="X")` if search
+is unavailable); cite the row's sentence. For earlier views use `history` or `at`.
 
-Call `memory_read` once at the start of a session. A plain read returns the generated profile
-body and active open items. `profile.written_at` says when that profile version was written;
-`profile.pending_facts` counts qualifying current facts changed since that version and not yet
-reflected in it. When the count is nonzero, `profile.freshness` explains the lag and points to a
-query read for those facts now. If no profile exists yet but qualifying facts are pending,
-`written_at` is null and the freshness message says it has not yet been written. Do not treat
-the profile as fully current while facts are pending.
+In coding sessions, write only on explicit intent ("remember that"). Codebase learnings and
+ideas go in the repository. In chat, follow the server's standing capture instructions. Never
+record your own inference or suggestion as the person's fact or decision. Something floated
+but unchosen is an `idea`; unresolved is `open`. A correction replaces the row you read rather
+than adding a duplicate. Accept a decision downgraded to open; ask the person if it matters.
 
-For work about a person, project or place use
-`memory_read(query="<subject>")`: it matches text, source quotes, subject names and aliases,
-returning open items first, then rows grouped by subject, with a profile reference rather than
-its body. Subject groups and subject-bearing open items include `subject_kind` (person,
-project, place, topic, area or asset); use that supplied kind rather than inferring it from a name.
-Rows without a subject have no subject kind. Responses are bounded; `omitted > 0` means rows were left out — narrow `query`.
-Use what it says; don't recite it.
-
-## Recall
-
-- "What did I say about X?" → `search` with `query: "X", kind: "memory"` (no `project` needed) when it is in
-  your tool list, else `memory_read(query="X")`. Cite the row's sentence, not your paraphrase.
-- "What did I say before / used to think?" → `memory_read` with `history: true` (superseded, retired,
-  stale and parked rows with their interval) or `at: "<ISO time>"` (what held then).
-
-## Write
-
-- **Coding sessions (Claude Code, Codex): write only on explicit intent** — "remember that …",
-  "note that I …". Learnings about a codebase and ideas for it go to the repository (its CLAUDE.md, docs
-  or ideas), never to personal memory.
-- **Chat sessions:** when the person says "remember", or states a fact, preference, decision or open
-  question about themselves or their people, projects and places, call `memory_add`.
-- Every `fact` and `decision` carries `source_quote`: the person's own sentence, verbatim. Never record
-  your own inference, summary or suggestion as a fact or decision; if it isn't something they said,
-  it isn't a fact. Something floated and not chosen is an `idea`; something unresolved is `open`.
-- One sentence per row; name the `subject` by its plain name (the verb resolves names and aliases —
-  never invent an id).
-- A correction is a new row with `replaces: <id>` of the row you read; never write a duplicate beside
-  the old one.
-- A `decision` whose quote does not show the person deciding may come back as `open`: nuco checks
-  decisions against their quotes. Don't argue with it; ask the person if it matters.
-
-## Client memory off
-
-Personal memory has one home. Don't write the client's own memory store:
-- **Claude Code**: auto-memory stays off (this plugin's rule, `CLAUDE.md` "No agent-local memory").
-- **Codex**: set `memories.generate_memories = false` and `memories.use_memories = false` in
-  `~/.codex/config.toml`.
-- **Claude.ai / ChatGPT**: the account's own memory is the person's choice; nuco's is the one these
-  verbs read and write.
+Don't write client auto-memory. In Codex, disable `memories.generate_memories` and
+`memories.use_memories`; Claude Code's auto-memory stays off. Account memory in Claude.ai or
+ChatGPT remains the person's choice.

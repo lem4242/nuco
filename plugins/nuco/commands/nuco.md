@@ -10,17 +10,17 @@ every nuco capability is reachable by phrase (no slash is ever required).
 
 Use the **nuco** skill. Interpret the argument:
 
-- **empty** → **wake**: force-load the **nuco** skill and render **where you are** — the status
+- **empty** → **wake**: load **nuco** and **nuco-render** and render **where you are** — the status
   screen for the **current level** (root / project / file). If there's no cursor yet, that's the
   **root** screen (the project grid). From now on, append the breadcrumb heartbeat as the last line
-  of **every** reply — `— nuco` at root, `— nuco · <project>` once inside a project — per the skill.
+  of **every** reply — `— nuco` at root, `— nuco · <project>` once inside a project — per **nuco-render**.
   Naming a project or document moves the cursor and renders the next level.
 - **`off`** → stop appending the heartbeat and stand down from the store.
 
 There is no separate "on" — waking *is* invoking, and you stay woken until context drops the skill
 (the heartbeat stops) or the user says `off`. Re-run `/nuco` to wake it again.
 
-Rendering is **markdown**, per the **nuco** skill's "Rendering" section — never a widget.
+Rendering is **markdown**, per the **nuco-render** skill — never a widget.
 
 The heartbeat is a smoke alarm: if it stops appearing, context was likely lost and the user should
 re-run `/nuco`. Never fake it.

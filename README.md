@@ -11,7 +11,7 @@ notebook.
 
 | Plugin | What it is | Where |
 | --- | --- | --- |
-| `nuco` | The store: the `nuco` operating skill + the self-hosted MCP connector | `plugins/nuco/` |
+| `nuco` | The store: core, rendering, memory and recipe skills + the MCP connector | `plugins/nuco/` |
 
 ```
 .
@@ -29,8 +29,10 @@ notebook.
 │       │   ├── nuco-search.md
 │       │   └── nuco-db.md
 │       └── skills/
-│           └── nuco/
-│               └── SKILL.md          # The store operating skill (/nuco)
+│           ├── nuco/SKILL.md         # Core operating judgment
+│           ├── nuco-render/SKILL.md  # Screens, images and links (/nuco)
+│           ├── nuco-memory/SKILL.md  # Personal memory
+│           └── nuco-recipe/SKILL.md  # Shared recipes
 └── README.md
 ```
 
@@ -73,6 +75,7 @@ copy of this marketplace instead — see the internal onboarding runbook.)
   reply; it stays woken until context drops it (the heartbeat stops) or you run `/nuco off`.
 - **Skill:** "remember this", "save to nuco", "find in nuco", "what did we decide about…", or any
   nuco table work triggers the `nuco` skill.
+- **Screens:** `/nuco`, "show me", status screens and `ls`-style listings load `nuco-render`.
 - **Commands:**
   - `/nuco` — wake the store and show the current project status.
   - `/nuco-project` — switch to a project and render its home, or list projects.
