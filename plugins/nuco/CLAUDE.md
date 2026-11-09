@@ -36,8 +36,8 @@ frozen at 2026-07-06 and kept only as the record up to that date.)
   `db_write(project, sql, dry_run=True)` previews row changes and DDL; use SQL WHERE clauses for
   targeted mutations. `nuco_context(project=…)` lists the project's tables.
 - **Files:** `file_list` · `file_read` · `file_write` · `file_move` · `file_delete` · `file_url` · `file_private_url`.
-  `file_list` returns names and paths; drill into folders via `path`, and pass a returned
-  `next_cursor` as `cursor` with the same project and no path. `file_read` accepts exactly one
+  `file_list` returns names and paths; drill into folders with `area` and `folder`, and pass a returned
+  `next_cursor` as `cursor` with the same project and neither of those. `file_read` accepts exactly one
   of `file_id` or `path`; for images, `size` controls the longest edge and the picture appears in chat.
   Files in `public/` are published to the world. `file_url` returns the public URL of a file
   under `public/` when public serving is enabled; on any other file it refuses (move the file to
