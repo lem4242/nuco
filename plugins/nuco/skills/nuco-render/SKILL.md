@@ -20,7 +20,7 @@ again. This heartbeat is a shell convention, not for voice/phone answers.
 
 ## Visual rules
 
-Glyphs: `☲` docs · `⛁` tables · `◰` assets · `⇄` connectors · `◷` updated · `⤓` size · `✎` access ·
+Glyphs: `☲` docs · `⛁` tables · `◰` files · `⇄` connectors · `◷` updated · `⤓` size · `✎` access ·
 `⚑` state. Access: `⌂` home · `rw` write · `r` read. State: `✓` active · `○` draft · `✗` archived.
 Use state glyphs in tables; spell out state in a document's meta line.
 
@@ -35,19 +35,23 @@ identifiers. Empty → `—`; true zero → `0`. Abbreviate relative times (`2 m
 - **Project home** (`nuco_context(project=…)`): a section index. Heading `# <Name>` (own home:
   `# ⌂ Home`), description in italics, then `✎ Access: read + write | ◷ Updated 2 days` (omit
   pencil for read-only). Two columns with blank headers: section name + preview on the left,
-  glyph + count on the right. Sections: Documents (counts by type), DB (table names), Assets
+  glyph + count on the right. Sections: Documents (counts by type), DB (table names), Files
   (counts by extension), Connectors, Members (names; no count).
 - **Documents** (`doc_list`): `Document | Type | ◷ | ⚑`; document cell stacks **Title** `vX`
   and subtitle. A type-scoped list drops Type. Search uses this layout for doc hits and the
-  Assets layout for file/image hits; cite memory hits by their sentences. Read hits to fill
+  Files layout for file/image hits; cite memory hits by their sentences. Read hits to fill
   missing version/state/date; never invent them. Page lists using returned cursors.
 - **Tables** (`nuco_context(project=…)`): `Table | Rows`; plain names, hiding `doc` and
   `nuco_audit`. Describe with `db_describe`; obtain counts with `db_read` using
   `SELECT count(*) AS total FROM "<discovered_table>"`, quoting the discovered SQL identifier.
-- **Assets** (`file_list`): `Asset | ⤓ | ◷`; show name and project-relative path. Compact sizes
-  (`2.4Mb`, `12Kb`, `340b`); empty → _No assets yet_. With `next_cursor`, say "N shown — more
-  available"; continue when asked with that cursor, the same project and no path. Use `path`
-  for folder drill-in. Absent `next_cursor` means the listing is complete.
+- **Files** (`file_list`): `File | ⤓ | ◷`; show name and project-relative path. Compact sizes
+  (`2.4Mb`, `12Kb`, `340b`); empty → _No files yet_. With `next_cursor`, say "N shown — more
+  available"; continue when asked with that cursor, the same project and no path or recursive
+  selection. Use `path` for folder drill-in and `recursive=True` for descendants. With no path,
+  list the four folders: `files/` (private), `public/` (published to the world), and `docs/`
+  and `tables/` (read-only projections). File paths must start with one of these folders.
+  Show whether each file is published, using the returned publication status (also on search
+  hits and write/move results). Absent `next_cursor` means the listing is complete.
 - **Document** (`doc_read`): `## <Title>`, meta line `note · v3 · ✓ active · ◷ 2 days`, then
   the body rendered as markdown.
 - **Table** (`db_read` + `db_describe`): markdown table; `date` absolute, `since` relative,

@@ -14,7 +14,7 @@
       "author": { "name": "lynton", "email": "lynton@d3r.com" },
       "source": "./plugins/nuco",
       "description": "nuco — shared, queryable store (documents + relational tables) on ParadeDB.",
-      "version": "0.6.2",
+      "version": "0.6.3",
       "keywords": ["nuco", "paradedb", "shared-store", "mcp"]
     }
   ]
